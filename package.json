@@ -11,14 +11,13 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@clober/v2-sdk": "^v0.0.83",
     "@headlessui/react": "^1.7.16",
     "@heroicons/react": "^2.0.18",
-    "@rainbow-me/rainbowkit": "^1.0.7",
     "@sentry/nextjs": "^8.10.0",
+    "@starknet-react/chains": "^3.1.0",
+    "@starknet-react/core": "^3.6.0",
     "@tamagui/config": "^1.112.22",
     "@tamagui/next-plugin": "^1.112.22",
-    "@web3analytic/funnel-sdk": "^1.0.10",
     "axios": "^1.5.0",
     "bignumber.js": "^9.1.1",
     "jotai": "^1.3.7",
@@ -32,8 +31,7 @@
     "react-tooltip": "^5.27.0",
     "reactflow": "^11.9.4",
     "uuid": "^10.0.0",
-    "viem": "^1.20.1",
-    "wagmi": "^1.4.12"
+    "viem": "^1.20.1"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.0",

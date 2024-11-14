@@ -1,6 +1,5 @@
 import React from 'react'
 import { getAddress, isAddressEqual } from 'viem'
-import { getMarketPrice, getPriceNeighborhood, Market } from '@clober/v2-sdk'
 import BigNumber from 'bignumber.js'
 
 import NumberInput from '../input/number-input'
@@ -14,9 +13,10 @@ import { Prices } from '../../model/prices'
 import CheckIcon from '../icon/check-icon'
 import { toPlacesString } from '../../utils/bignumber'
 import { getPriceDecimals } from '../../utils/prices'
+import { Market } from '../../model/market'
 
 export const LimitForm = ({
-  chainId,
+  chainNetwork,
   currencies,
   setCurrencies,
   balances,
@@ -46,7 +46,7 @@ export const LimitForm = ({
   setMarketRateAction,
   actionButtonProps,
 }: {
-  chainId: number
+  chainNetwork: string
   currencies: Currency[]
   setCurrencies: (currencies: Currency[]) => void
   balances: Balances
@@ -94,7 +94,7 @@ export const LimitForm = ({
   )
   return showInputCurrencySelect ? (
     <CurrencySelect
-      chainId={chainId}
+      chainNetwork={chainNetwork}
       currencies={
         outputCurrency
           ? currencies.filter(
@@ -119,7 +119,7 @@ export const LimitForm = ({
     />
   ) : showOutputCurrencySelect ? (
     <CurrencySelect
-      chainId={chainId}
+      chainNetwork={chainNetwork}
       currencies={
         inputCurrency
           ? currencies.filter(
@@ -183,24 +183,26 @@ export const LimitForm = ({
                   setPriceInput('')
                   return
                 }
-                const {
-                  normal: {
-                    now: { tick },
-                  },
-                } = getPriceNeighborhood({
-                  chainId,
-                  price: priceInput,
-                  currency0: inputCurrency,
-                  currency1: outputCurrency,
-                })
-                let currentTick = tick
+                // TODO
+                // const {
+                //   normal: {
+                //     now: { tick },
+                //   },
+                // } = getPriceNeighborhood({
+                //   chainNetwork: chainId,
+                //   price: priceInput,
+                //   currency0: inputCurrency,
+                //   currency1: outputCurrency,
+                // })
+                let currentTick = 0n
                 // eslint-disable-next-line no-constant-condition
                 while (true) {
-                  const price = getMarketPrice({
-                    marketQuoteCurrency: selectedMarket.quote,
-                    marketBaseCurrency: selectedMarket.base,
-                    bidTick: currentTick,
-                  })
+                  // const price = getMarketPrice({
+                  //   marketQuoteCurrency: selectedMarket.quote,
+                  //   marketBaseCurrency: selectedMarket.base,
+                  //   bidTick: currentTick,
+                  // })
+                  const price = 0.0001
                   const nextPrice = toPlacesString(
                     price,
                     minimumDecimalPlaces,
@@ -246,24 +248,26 @@ export const LimitForm = ({
                   setPriceInput('')
                   return
                 }
-                const {
-                  normal: {
-                    now: { tick },
-                  },
-                } = getPriceNeighborhood({
-                  chainId,
-                  price: priceInput,
-                  currency0: inputCurrency,
-                  currency1: outputCurrency,
-                })
-                let currentTick = tick
+                // TOOD
+                // const {
+                //   normal: {
+                //     now: { tick },
+                //   },
+                // } = getPriceNeighborhood({
+                //   chainNetwork: chainId,
+                //   price: priceInput,
+                //   currency0: inputCurrency,
+                //   currency1: outputCurrency,
+                // })
+                let currentTick = 0n
                 // eslint-disable-next-line no-constant-condition
                 while (true) {
-                  const price = getMarketPrice({
-                    marketQuoteCurrency: selectedMarket.quote,
-                    marketBaseCurrency: selectedMarket.base,
-                    bidTick: currentTick,
-                  })
+                  // const price = getMarketPrice({
+                  //   marketQuoteCurrency: selectedMarket.quote,
+                  //   marketBaseCurrency: selectedMarket.base,
+                  //   bidTick: currentTick,
+                  // })
+                  const price = 0.0001
                   const nextPrice = toPlacesString(
                     price,
                     minimumDecimalPlaces,

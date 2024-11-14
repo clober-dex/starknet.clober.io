@@ -12,8 +12,8 @@ export const CurrencyIcon = ({
 } & React.ImgHTMLAttributes<HTMLImageElement>) => {
   const [tryCount, setTryCount] = React.useState(0)
 
-  const chainId = Number(localStorage.getItem(LOCAL_STORAGE_CHAIN_KEY) ?? '0')
-  const chain = supportChains.find((chain) => chain.id === chainId)
+  const chainNetwork = localStorage.getItem(LOCAL_STORAGE_CHAIN_KEY) ?? ''
+  const chain = supportChains.find((chain) => chain.network === chainNetwork)
   return (
     <img
       className="rounded-full"

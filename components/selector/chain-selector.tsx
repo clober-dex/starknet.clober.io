@@ -1,12 +1,12 @@
 import React from 'react'
+import { Chain } from '@starknet-react/chains'
 
 import { textStyles } from '../../themes/text-styles'
 import useDropdown from '../../hooks/useDropdown'
 import ChainIcon from '../icon/chain-icon'
-import { Chain } from '../../model/chain'
 import { TriangleDownSvg } from '../svg/triangle-down-svg'
 import { CheckSvg } from '../svg/check-svg'
-import { testnetChainIds } from '../../constants/chain'
+import { testnetChainNetworks } from '../../constants/chain'
 
 export default function ChainSelector({
   chain,
@@ -20,13 +20,13 @@ export default function ChainSelector({
   const { showDropdown, setShowDropdown } = useDropdown()
 
   const mainnetChains = chains.filter(
-    (chain) => !testnetChainIds.includes(chain.id),
+    (chain) => !testnetChainNetworks.includes(chain.network),
   )
   const testnetChains = chains.filter((chain) =>
-    testnetChainIds.includes(chain.id),
+    testnetChainNetworks.includes(chain.network),
   )
 
-  return chains.find((_chain) => _chain.id === chain.id) ? (
+  return chains.find((_chain) => _chain.network === chain.network) ? (
     <div className="flex relative">
       <button
         onClick={() => {
@@ -36,7 +36,7 @@ export default function ChainSelector({
       >
         <ChainIcon chain={chain} />
         <p className={`hidden lg:block ${textStyles.body3Bold}`}>
-          {chain.name}
+          {chain.network}
         </p>
         <TriangleDownSvg className="hidden lg:block" />
       </button>
@@ -149,11 +149,11 @@ function ChainList({
       <div className="flex flex-col items-start self-stretch rounded-none">
         <div className="flex flex-col items-start self-stretch rounded-none">
           {chains
-            .sort((a, b) => a.id - b.id)
+            .sort((a, b) => Number(a.id) - Number(b.id))
             .map((_chain) => (
               <div
                 className={`flex items-center gap-2 px-3 py-2 self-stretch cursor-pointer text-white ${textStyles.body3Bold} hover:bg-gray-600`}
-                key={_chain.name}
+                key={_chain.network}
                 onClick={() => {
                   try {
                     setChain(_chain)
@@ -165,8 +165,8 @@ function ChainList({
                 }}
               >
                 <ChainIcon chain={_chain} />
-                <span>{_chain.name}</span>
-                {_chain.id === chain.id ? (
+                <span>{_chain.network}</span>
+                {_chain.network === chain.network ? (
                   <CheckSvg className="ml-auto" />
                 ) : (
                   <></>

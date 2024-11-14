@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
+import { useAccount } from '@starknet-react/core'
 
 import { useChainContext } from '../contexts/chain-context'
 import ChainSelector from '../components/selector/chain-selector'
@@ -33,14 +33,14 @@ const HeaderContainer = ({ onMenuClick }: { onMenuClick: () => void }) => {
             disabled={
               router.pathname === '/limit' || router.pathname === '/swap'
             }
-            onClick={() => router.push(`/limit?chain=${selectedChain.id}`)}
+            onClick={() => router.push(`/limit?chain=${selectedChain.network}`)}
             className="text-sm text-gray-500 font-semibold disabled:text-white"
           >
             Trade
           </button>
           <button
             disabled={true /*TODO: router.pathname.includes('/earn')*/}
-            onClick={() => router.push(`/earn?chain=${selectedChain.id}`)}
+            onClick={() => router.push(`/earn?chain=${selectedChain.network}`)}
             // className="text-sm text-gray-500 font-semibold disabled:text-white"
             className="text-sm text-gray-500 font-semibold"
           >

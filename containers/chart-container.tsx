@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
-import { Market } from '@clober/v2-sdk'
+import { sepolia } from '@starknet-react/chains'
 
-import { useChainContext } from '../contexts/chain-context'
+import { Market } from '../model/market'
 
 const TVChartContainer = dynamic(
   () => import('./tv-chart-container').then((mod) => mod.TvChartContainer),
@@ -17,7 +17,6 @@ export const ChartContainer = ({
   selectedMarket: Market
   setShowOrderBook: (showOrderBook: boolean) => void
 }) => {
-  const { selectedChain } = useChainContext()
   const [isScriptReady, setIsScriptReady] = useState(false)
 
   return (
@@ -31,7 +30,7 @@ export const ChartContainer = ({
       />
       {isScriptReady ? (
         <TVChartContainer
-          chainId={selectedChain.id}
+          chainNetwork={sepolia.network}
           market={selectedMarket}
           setShowOrderBook={setShowOrderBook}
         />

@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react'
-import { getAddress, isAddressEqual, parseUnits } from 'viem'
-import { useAccount, useFeeData, useWalletClient } from 'wagmi'
-import { getQuoteToken } from '@clober/v2-sdk'
+import { getAddress, isAddressEqual, parseUnits, zeroAddress } from 'viem'
 import BigNumber from 'bignumber.js'
+import { useAccount } from '@starknet-react/core'
 
 import { LimitForm } from '../components/form/limit-form'
 import OrderBook from '../components/order-book'
@@ -17,9 +16,9 @@ import { useLimitContractContext } from '../contexts/limit/limit-contract-contex
 import { useCurrencyContext } from '../contexts/currency-context'
 import { isAddressesEqual } from '../utils/address'
 import { fetchQuotes } from '../apis/swap/quotes'
-import { AGGREGATORS } from '../constants/aggregators'
 import { formatUnits } from '../utils/bigint'
 import { toPlacesString } from '../utils/bignumber'
+import { AGGREGATORS } from '../constants/aggregators'
 
 import { ChartContainer } from './chart-container'
 
@@ -37,7 +36,6 @@ export const LimitContainer = () => {
   const { openOrders } = useOpenOrderContext()
   const { limit, cancels, claims } = useLimitContractContext()
   const { address: userAddress } = useAccount()
-  const { data: walletClient } = useWalletClient()
   const {
     isBid,
     setIsBid,
@@ -60,23 +58,19 @@ export const LimitContainer = () => {
   } = useLimitContext()
   const { balances, prices, currencies, setCurrencies } = useCurrencyContext()
   const [showOrderBook, setShowOrderBook] = useState(true)
-  const { data: feeData } = useFeeData()
   const [isFetchingQuotes, setIsFetchingQuotes] = useState(false)
 
   const [quoteCurrency, baseCurrency] = useMemo(() => {
     if (inputCurrency && outputCurrency) {
-      const quote = getQuoteToken({
-        chainId: selectedChain.id,
-        token0: inputCurrency.address,
-        token1: outputCurrency.address,
-      })
+      // TODO
+      const quote = zeroAddress
       return isAddressEqual(quote, inputCurrency.address)
         ? [inputCurrency, outputCurrency]
         : [outputCurrency, inputCurrency]
     } else {
       return [undefined, undefined]
     }
-  }, [inputCurrency, outputCurrency, selectedChain.id])
+  }, [inputCurrency, outputCurrency])
 
   const amount = useMemo(
     () => parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18),
@@ -142,7 +136,7 @@ export const LimitContainer = () => {
         )}
         <div className="flex flex-col rounded-2xl bg-gray-900 p-6 w-[360px] sm:w-[480px] h-[391px] sm:h-[459px] md:h-[459px] lg:h-[460px]">
           <LimitForm
-            chainId={selectedChain.id}
+            chainNetwork={selectedChain.network}
             prices={prices}
             balances={balances}
             currencies={currencies}
@@ -189,18 +183,10 @@ export const LimitContainer = () => {
             setMarketRateAction={{
               isLoading: isFetchingQuotes,
               action: async () => {
-                if (
-                  feeData &&
-                  feeData.gasPrice &&
-                  inputCurrency &&
-                  outputCurrency
-                ) {
+                if (inputCurrency && outputCurrency) {
                   setIsFetchingQuotes(true)
-                  const quoteToken = getQuoteToken({
-                    chainId: selectedChain.id,
-                    token0: inputCurrency.address,
-                    token1: outputCurrency.address,
-                  })
+                  // TODO
+                  const quoteToken = zeroAddress
                   const [quoteCurrency, baseCurrency] = isAddressEqual(
                     quoteToken,
                     inputCurrency.address,
@@ -208,12 +194,12 @@ export const LimitContainer = () => {
                     ? [inputCurrency, outputCurrency]
                     : [outputCurrency, inputCurrency]
                   const { amountOut } = await fetchQuotes(
-                    AGGREGATORS[selectedChain.id],
+                    AGGREGATORS[selectedChain.network],
                     baseCurrency,
                     parseUnits('1', baseCurrency.decimals),
                     quoteCurrency,
                     20,
-                    feeData.gasPrice,
+                    0n,
                   )
                   const price = new BigNumber(
                     formatUnits(amountOut, quoteCurrency.decimals),
@@ -231,8 +217,7 @@ export const LimitContainer = () => {
             }}
             actionButtonProps={{
               disabled:
-                (!walletClient ||
-                  !inputCurrency ||
+                (!inputCurrency ||
                   !outputCurrency ||
                   priceInput === '' ||
                   (selectedMarket &&
@@ -259,9 +244,7 @@ export const LimitContainer = () => {
                   selectedMarket,
                 )
               },
-              text: !walletClient
-                ? 'Connect wallet'
-                : !inputCurrency
+              text: !inputCurrency
                 ? 'Select input currency'
                 : !outputCurrency
                 ? 'Select output currency'
@@ -309,7 +292,6 @@ export const LimitContainer = () => {
         <div className="flex flex-col w-full lg:w-auto h-full lg:grid lg:grid-cols-3 gap-4 sm:gap-6">
           {openOrders.map((openOrder, index) => (
             <OpenOrderCard
-              chainId={selectedChain.id}
               openOrder={openOrder}
               key={index}
               claimActionButtonProps={{

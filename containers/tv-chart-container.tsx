@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { CHAIN_IDS, Market } from '@clober/v2-sdk'
 import { Tooltip } from 'react-tooltip'
 
 import {
@@ -13,6 +12,7 @@ import { SUPPORTED_INTERVALS } from '../utils/chart'
 import { QuestionMarkSvg } from '../components/svg/question-mark-svg'
 import CloseSvg from '../components/svg/close-svg'
 import { getWindowSize } from '../utils/screen'
+import { Market } from '../model/market'
 
 function getLanguageFromURL(): LanguageCode | null {
   const regex = new RegExp('[\\?&]lang=([^&#]*)')
@@ -23,11 +23,11 @@ function getLanguageFromURL(): LanguageCode | null {
 }
 
 export const TvChartContainer = ({
-  chainId,
+  chainNetwork,
   market,
   setShowOrderBook,
 }: {
-  chainId: CHAIN_IDS
+  chainNetwork: string
   market: Market
   setShowOrderBook: (showOrderBook: boolean) => void
 }) => {
@@ -61,7 +61,7 @@ export const TvChartContainer = ({
   useEffect(() => {
     const tvWidget = new widget({
       symbol,
-      datafeed: new DataFeed(chainId, market.base, market.quote),
+      datafeed: new DataFeed(chainNetwork, market.base, market.quote),
       interval,
       container: chartContainerRef.current,
       library_path: '/static/charting_library/',
@@ -99,7 +99,7 @@ export const TvChartContainer = ({
     return () => {
       tvWidget.remove()
     }
-  }, [symbol, interval, chainId, market.base, market.quote])
+  }, [symbol, interval, market.base, market.quote, chainNetwork])
 
   return (
     <>

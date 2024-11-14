@@ -1,124 +1,39 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import '../styles/globals.css'
-import '@rainbow-me/rainbowkit/styles.css'
-import {
-  connectorsForWallets,
-  darkTheme,
-  getDefaultWallets,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit'
 import Head from 'next/head'
 import type { AppProps } from 'next/app'
-import {
-  configureChains,
-  createConfig,
-  useAccount,
-  useQuery,
-  WagmiConfig,
-} from 'wagmi'
-import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
-import { identify } from '@web3analytic/funnel-sdk'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { sepolia } from '@starknet-react/chains'
 import {
-  enkryptWallet,
-  okxWallet,
-  phantomWallet,
-  rabbyWallet,
-  trustWallet,
-  xdefiWallet,
-  zerionWallet,
-} from '@rainbow-me/rainbowkit/wallets'
-import { getSubgraphBlockNumber } from '@clober/v2-sdk'
+  argent,
+  braavos,
+  publicProvider,
+  StarknetConfig,
+} from '@starknet-react/core'
 
 import HeaderContainer from '../containers/header-container'
 import Footer from '../components/footer'
 import { ChainProvider, useChainContext } from '../contexts/chain-context'
 import { MarketProvider } from '../contexts/limit/market-context'
-import { supportChains, testnetChainIds } from '../constants/chain'
-import { toWagmiChain } from '../model/chain'
 import { TransactionProvider } from '../contexts/transaction-context'
 import { LimitProvider } from '../contexts/limit/limit-context'
-import { SwapProvider } from '../contexts/swap/swap-context'
 import { OpenOrderProvider } from '../contexts/limit/open-order-context'
 import { LimitContractProvider } from '../contexts/limit/limit-contract-context'
-import { SwapContractProvider } from '../contexts/swap/swap-contract-context'
 import Panel from '../components/panel'
-import { RPC_URL } from '../constants/rpc-urls'
 import ErrorBoundary from '../components/error-boundary'
-import { beraTestnetChain } from '../constants/dev-chain'
 import { CurrencyProvider } from '../contexts/currency-context'
-import { PoolProvider } from '../contexts/pool/pool-context'
-import { PoolContractProvider } from '../contexts/pool/pool-contract-context'
-
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  supportChains.map((chain) => toWagmiChain(chain)),
-  [
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: RPC_URL[chain.id],
-      }),
-    }),
-  ],
-  { rank: true },
-)
-
-const PROJECT_ID = '14e09398dd595b0d1dccabf414ac4531'
-const { wallets } = getDefaultWallets({
-  appName: 'Clober Dex',
-  projectId: PROJECT_ID,
-  chains,
-})
-
-const connectors = connectorsForWallets([
-  ...wallets,
-  {
-    groupName: 'Popular',
-    wallets: [
-      rabbyWallet({ chains }),
-      phantomWallet({ chains }),
-      okxWallet({ chains, projectId: PROJECT_ID }),
-    ],
-  },
-  {
-    groupName: 'The others',
-    wallets: [
-      enkryptWallet({ chains }),
-      trustWallet({ chains, projectId: PROJECT_ID }),
-      xdefiWallet({ chains }),
-      zerionWallet({ chains, projectId: PROJECT_ID }),
-    ],
-  },
-])
-
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient,
-  webSocketPublicClient,
-})
 
 const WalletProvider = ({ children }: React.PropsWithChildren) => {
+  const chains = [sepolia]
+  const provider = publicProvider()
+  const connectors = [braavos(), argent()]
+
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={supportChains} theme={darkTheme()}>
-        {children}
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <StarknetConfig chains={chains} provider={provider} connectors={connectors}>
+      {children}
+    </StarknetConfig>
   )
-}
-
-const Web3AnalyticWrapper = ({ children }: React.PropsWithChildren) => {
-  const { address } = useAccount()
-
-  useEffect(() => {
-    if (!address) {
-      return
-    }
-    identify(process.env.NEXT_PUBLIC_WEB3_ANALYTIC_API_KEY || '', address)
-  }, [address])
-
-  return <>{children}</>
 }
 
 const LimitProvidersWrapper = ({ children }: React.PropsWithChildren) => {
@@ -130,22 +45,6 @@ const LimitProvidersWrapper = ({ children }: React.PropsWithChildren) => {
         </LimitProvider>
       </LimitContractProvider>
     </OpenOrderProvider>
-  )
-}
-
-const SwapProvidersWrapper = ({ children }: React.PropsWithChildren) => {
-  return (
-    <SwapProvider>
-      <SwapContractProvider>{children}</SwapContractProvider>
-    </SwapProvider>
-  )
-}
-
-const PoolProvidersWrapper = ({ children }: React.PropsWithChildren) => {
-  return (
-    <PoolProvider>
-      <PoolContractProvider>{children}</PoolContractProvider>
-    </PoolProvider>
   )
 }
 
@@ -162,7 +61,7 @@ const PanelWrapper = ({
 
   return (
     <Panel
-      chainId={selectedChain.id}
+      chainNetwork={selectedChain.network}
       open={open}
       setOpen={setOpen}
       router={router}
@@ -188,16 +87,7 @@ const MainComponentWrapper = ({ children }: React.PropsWithChildren) => {
           </button>
           <button
             className="flex font-bold items-center justify-center text-base sm:text-2xl w-16 sm:w-[120px] bg-transparent text-gray-500 disabled:text-white border-0 rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-white"
-            disabled={router.pathname === '/swap'}
-            onClick={() => {
-              if (
-                !testnetChainIds
-                  .filter((chainId) => chainId !== beraTestnetChain.id)
-                  .includes(selectedChain.id)
-              ) {
-                router.push(`/swap?chain=${selectedChain.id}`)
-              }
-            }}
+            disabled={false}
           >
             Swap
           </button>
@@ -210,20 +100,7 @@ const MainComponentWrapper = ({ children }: React.PropsWithChildren) => {
 }
 
 const FooterWrapper = () => {
-  const { selectedChain } = useChainContext()
-  const { data: latestSubgraphBlockNumber } = useQuery(
-    ['latest-subgraph-block-number', selectedChain.id],
-    async () => {
-      return getSubgraphBlockNumber({ chainId: selectedChain.id })
-    },
-    {
-      initialData: 0,
-      refetchInterval: 10 * 1000,
-      refetchIntervalInBackground: true,
-    },
-  )
-
-  return <Footer latestSubgraphBlockNumber={latestSubgraphBlockNumber} />
+  return <Footer latestSubgraphBlockNumber={0} />
 }
 
 function App({ Component, pageProps }: AppProps) {
@@ -260,49 +137,36 @@ function App({ Component, pageProps }: AppProps) {
           <link rel="icon" type="image/png" href="/favicon.png" />
         </Head>
         <WalletProvider>
-          <Web3AnalyticWrapper>
-            <TransactionProvider>
-              <ChainProvider>
-                <CurrencyProvider>
-                  {router.pathname === '/iframe' ? (
-                    <LimitProvidersWrapper>
-                      <div className="flex flex-col w-full min-h-[100vh] bg-gray-950">
-                        <HeaderContainer onMenuClick={() => setOpen(true)} />
+          <TransactionProvider>
+            <ChainProvider>
+              <CurrencyProvider>
+                {router.pathname === '/iframe' ? (
+                  <LimitProvidersWrapper>
+                    <div className="flex flex-col w-full min-h-[100vh] bg-gray-950">
+                      <HeaderContainer onMenuClick={() => setOpen(true)} />
 
-                        <div className="flex flex-1 relative justify-center bg-gray-950">
-                          <div className="flex w-full flex-col items-center gap-4 sm:gap-6 p-4 pb-0">
-                            <Component {...pageProps} />
-                          </div>
+                      <div className="flex flex-1 relative justify-center bg-gray-950">
+                        <div className="flex w-full flex-col items-center gap-4 sm:gap-6 p-4 pb-0">
+                          <Component {...pageProps} />
                         </div>
                       </div>
-                    </LimitProvidersWrapper>
-                  ) : router.pathname.includes('/earn') ? (
-                    <PoolProvidersWrapper>
-                      <div className="flex flex-col w-full min-h-[100vh] bg-gray-950">
-                        <PanelWrapper open={open} setOpen={setOpen} />
-                        <HeaderContainer onMenuClick={() => setOpen(true)} />
-
+                    </div>
+                  </LimitProvidersWrapper>
+                ) : (
+                  <LimitProvidersWrapper>
+                    <div className="flex flex-col w-[100vw] min-h-[100vh] bg-gray-950">
+                      <PanelWrapper open={open} setOpen={setOpen} />
+                      <HeaderContainer onMenuClick={() => setOpen(true)} />
+                      <MainComponentWrapper>
                         <Component {...pageProps} />
-                      </div>
-                    </PoolProvidersWrapper>
-                  ) : (
-                    <LimitProvidersWrapper>
-                      <SwapProvidersWrapper>
-                        <div className="flex flex-col w-[100vw] min-h-[100vh] bg-gray-950">
-                          <PanelWrapper open={open} setOpen={setOpen} />
-                          <HeaderContainer onMenuClick={() => setOpen(true)} />
-                          <MainComponentWrapper>
-                            <Component {...pageProps} />
-                          </MainComponentWrapper>
-                          <FooterWrapper />
-                        </div>
-                      </SwapProvidersWrapper>
-                    </LimitProvidersWrapper>
-                  )}
-                </CurrencyProvider>
-              </ChainProvider>
-            </TransactionProvider>
-          </Web3AnalyticWrapper>
+                      </MainComponentWrapper>
+                      <FooterWrapper />
+                    </div>
+                  </LimitProvidersWrapper>
+                )}
+              </CurrencyProvider>
+            </ChainProvider>
+          </TransactionProvider>
         </WalletProvider>
       </ErrorBoundary>
     </>

@@ -1,4 +1,4 @@
-import { Chain } from 'wagmi'
+import { Chain } from '@starknet-react/chains'
 
 import { Currency } from '../currency'
 import { Prices } from '../prices'

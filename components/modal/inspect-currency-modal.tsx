@@ -4,16 +4,13 @@ import { createPortal } from 'react-dom'
 import { Currency } from '../../model/currency'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { shortAddress } from '../../utils/address'
-import { EXPLORER_URL } from '../../constants/explorer-urls'
 import { sliceUrl } from '../../utils/url'
 
 const InspectCurrencyModal = ({
-  chainId,
   currency,
   onCurrencySelect,
   setInspectingCurrency,
 }: {
-  chainId: number
   currency: Currency | undefined
   onCurrencySelect: (currency: Currency) => void
   setInspectingCurrency: (currency: Currency | undefined) => void
@@ -22,9 +19,10 @@ const InspectCurrencyModal = ({
     return <></>
   }
 
-  const explorerUrl = `${EXPLORER_URL[chainId] ?? EXPLORER_URL[0]}/address/${
-    currency.address
-  }`
+  // const explorerUrl = `${EXPLORER_URL[chainId] ?? EXPLORER_URL[0]}/address/${
+  //   currency.address
+  // }`
+  const explorerUrl = '[todo]explorerUrl'
 
   return createPortal(
     <div

@@ -1,8 +1,9 @@
 import React from 'react'
-import { useAccount, useQuery } from 'wagmi'
-import { getOpenOrders, OpenOrder } from '@clober/v2-sdk'
+import { useAccount } from '@starknet-react/core'
+import { useQuery } from '@tanstack/react-query'
 
 import { useChainContext } from '../chain-context'
+import { OpenOrder } from '../../model/open-order'
 
 type OpenOrderContext = {
   openOrders: OpenOrder[]
@@ -18,21 +19,13 @@ export const OpenOrderProvider = ({
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
 
-  const { data: openOrders } = useQuery(
-    ['open-orders', selectedChain, userAddress],
-    () =>
-      userAddress
-        ? getOpenOrders({
-            chainId: selectedChain.id,
-            userAddress,
-          })
-        : [],
-    {
-      refetchIntervalInBackground: true,
-      refetchInterval: 2 * 1000,
-      initialData: [],
-    },
-  )
+  const { data: openOrders } = useQuery({
+    queryKey: ['open-orders', selectedChain.network, userAddress],
+    queryFn: () => [],
+    refetchIntervalInBackground: true,
+    refetchInterval: 2 * 1000,
+    initialData: [],
+  })
 
   return (
     <Context.Provider

@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { getMarket, Market } from '@clober/v2-sdk'
-import { useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
-import { getAddress } from 'viem'
+import { useQuery } from '@tanstack/react-query'
 
-import { isMarketEqual } from '../../utils/market'
 import {
   calculateInputCurrencyAmountString,
   calculateOutputCurrencyAmountString,
-  isOrderBookEqual,
   parseDepth,
 } from '../../utils/order-book'
 import { getPriceDecimals } from '../../utils/prices'
@@ -19,7 +15,7 @@ import {
 import { useChainContext } from '../chain-context'
 import { getCurrencyAddress } from '../../utils/currency'
 import { toPlacesString } from '../../utils/bignumber'
-import { RPC_URL } from '../../constants/rpc-urls'
+import { Market } from '../../model/market'
 
 import { useLimitContext } from './limit-context'
 
@@ -97,45 +93,21 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
     'limit',
     selectedChain,
   )
-  const { data: market } = useQuery(
-    ['market', selectedChain, inputCurrencyAddress, outputCurrencyAddress],
-    async () => {
-      if (inputCurrencyAddress && outputCurrencyAddress) {
-        return getMarket({
-          chainId: selectedChain.id,
-          token0: getAddress(inputCurrencyAddress),
-          token1: getAddress(outputCurrencyAddress),
-          options: {
-            rpcUrl: RPC_URL[selectedChain.id],
-            useSubgraph: false,
-          },
-        })
-      } else {
-        return null
-      }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: market } = useQuery({
+    queryKey: [
+      'market',
+      selectedChain.network,
+      inputCurrencyAddress,
+      outputCurrencyAddress,
+    ],
+    queryFn: async () => {
+      return null
     },
-    {
-      initialData: null,
-      refetchInterval: 2000,
-      refetchIntervalInBackground: true,
-    },
-  )
-
-  useEffect(() => {
-    if (!market) {
-      setSelectedMarket(undefined)
-    } else if (!isMarketEqual(selectedMarket, market)) {
-      setSelectedMarket(market)
-    } else if (
-      selectedMarket &&
-      market &&
-      isMarketEqual(selectedMarket, market) &&
-      (!isOrderBookEqual(selectedMarket?.asks ?? [], market?.asks ?? []) ||
-        !isOrderBookEqual(selectedMarket?.bids ?? [], market?.bids ?? []))
-    ) {
-      setSelectedMarket(market)
-    }
-  }, [market, selectedMarket])
+    initialData: null,
+    refetchInterval: 2000,
+    refetchIntervalInBackground: true,
+  })
 
   const availableDecimalPlacesGroups = useMemo(() => {
     return selectedMarket &&

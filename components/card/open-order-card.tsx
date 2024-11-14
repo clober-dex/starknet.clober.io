@@ -1,30 +1,23 @@
 import React from 'react'
-import { CHAIN_IDS, OpenOrder } from '@clober/v2-sdk'
 
 import { OutlinkSvg } from '../svg/outlink-svg'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { toPlacesString } from '../../utils/bignumber'
-import { findSupportChain } from '../../constants/chain'
-import { Chain } from '../../model/chain'
+import { OpenOrder } from '../../model/open-order'
 
 export const OpenOrderCard = ({
-  chainId,
   openOrder,
   claimActionButtonProps,
   cancelActionButtonProps,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
-  chainId: CHAIN_IDS
   openOrder: OpenOrder
   claimActionButtonProps: ActionButtonProps
   cancelActionButtonProps: ActionButtonProps
 }) => {
   const filledRatio =
     (Number(openOrder.filled.value) / Number(openOrder.amount.value)) * 100
-  const chain = findSupportChain(chainId) as Chain
-  const txUrl = chain.blockExplorers
-    ? `${chain.blockExplorers.default.url}/tx/${openOrder.txHash}`
-    : ''
+  const txUrl = 'txUrl'
   return (
     <div
       className="flex flex-col shadow border border-solid border-gray-800 lg:w-[310px] gap-4 bg-gray-900 rounded-2xl p-4"

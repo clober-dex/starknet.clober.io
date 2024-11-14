@@ -3,15 +3,14 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { NextRouter } from 'next/router'
-import { CHAIN_IDS } from '@clober/v2-sdk'
 
 const Panel = ({
-  chainId,
+  chainNetwork,
   open,
   setOpen,
   router,
 }: {
-  chainId: CHAIN_IDS
+  chainNetwork: string
   open: boolean
   setOpen: (open: boolean) => void
   router: NextRouter
@@ -58,26 +57,12 @@ const Panel = ({
                             router.pathname === '/swap'
                           }
                           onClick={() => {
-                            router.push(`/limit?chain=${chainId}`)
+                            router.push(`/limit?chain=${chainNetwork}`)
                             setOpen(false)
                           }}
                           className="text-gray-500 font-semibold disabled:text-white"
                         >
                           Trade
-                        </button>
-                        <button
-                          disabled={
-                            true
-                            /*TODO: router.pathname.includes('/earn')*/
-                          }
-                          onClick={() => {
-                            router.push(`/earn?chain=${chainId}`)
-                            setOpen(false)
-                          }}
-                          // className="text-gray-500 font-semibold disabled:text-white"
-                          className="text-gray-500 font-semibold"
-                        >
-                          Pool
                         </button>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

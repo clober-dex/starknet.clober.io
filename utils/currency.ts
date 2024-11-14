@@ -1,38 +1,30 @@
-import {
-  createPublicClient,
-  getAddress,
-  http,
-  isAddressEqual,
-  zeroAddress,
-} from 'viem'
+import { getAddress, isAddressEqual } from 'viem'
+import { Chain } from '@starknet-react/chains'
 
-import { findSupportChain, supportChains } from '../constants/chain'
-import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
+import { findSupportChain } from '../constants/chain'
 import { Currency } from '../model/currency'
 import {
   DEFAULT_INPUT_CURRENCY,
   DEFAULT_OUTPUT_CURRENCY,
-  ETH,
 } from '../constants/currency'
-import { Chain } from '../model/chain'
 import { fetchApi } from '../apis/utils'
 
 export const LOCAL_STORAGE_INPUT_CURRENCY_KEY = (
   context: string,
   chain: Chain,
-) => `${chain.id}-inputCurrency-${context}`
+) => `${chain.network}-inputCurrency-${context}`
 export const LOCAL_STORAGE_OUTPUT_CURRENCY_KEY = (
   context: string,
   chain: Chain,
-) => `${chain.id}-outputCurrency-${context}`
+) => `${chain.network}-outputCurrency-${context}`
 export const QUERY_PARAM_INPUT_CURRENCY_KEY = 'inputCurrency'
 export const QUERY_PARAM_OUTPUT_CURRENCY_KEY = 'outputCurrency'
 
 const currencyCache: {
   [key: string]: Currency[]
 } = {}
-const getCurrencyCacheKey = (chainId: number, name: string) =>
-  `${chainId}-${name.toLowerCase()}`
+const getCurrencyCacheKey = (chainNetwork: string, name: string) =>
+  `${chainNetwork}-${name.toLowerCase()}`
 
 let fetchCurrencyJobId: NodeJS.Timeout | null = null
 let fetchCurrencyJobResult: Currency[] = []
@@ -49,51 +41,19 @@ export const deduplicateCurrencies = (currencies: Currency[]) => {
 }
 
 export const fetchCurrency = async (
-  chainId: number,
+  chainNetwork: string,
   address: `0x${string}`,
 ): Promise<Currency | undefined> => {
-  if (isAddressEqual(address, zeroAddress)) {
-    return ETH
-  }
-
-  const publicClient = createPublicClient({
-    chain: supportChains.find((chain) => chain.id === chainId),
-    transport: http(),
-  })
-  const [{ result: name }, { result: symbol }, { result: decimals }] =
-    await publicClient.multicall({
-      contracts: [
-        {
-          address,
-          abi: ERC20_PERMIT_ABI,
-          functionName: 'name',
-        },
-        {
-          address,
-          abi: ERC20_PERMIT_ABI,
-          functionName: 'symbol',
-        },
-        {
-          address,
-          abi: ERC20_PERMIT_ABI,
-          functionName: 'decimals',
-        },
-      ],
-    })
-  if (!name || !symbol || !decimals) {
-    return undefined
-  }
-
   return {
     address,
-    name: name,
-    symbol: symbol,
-    decimals: decimals,
+    name: 'test',
+    symbol: 'test',
+    decimals: 18,
   }
 }
 
 export const fetchCurrenciesByName = async (
-  chainId: number,
+  chainNetwork: string,
   name: string,
 ): Promise<Currency[]> => {
   if (fetchCurrencyJobId) {
@@ -103,7 +63,7 @@ export const fetchCurrenciesByName = async (
   const previousCode = fetchCurrencyJobResultCode
   // @ts-ignore
   fetchCurrencyJobId = setTimeout(async () => {
-    fetchCurrencyJobResult = await fetchCurrencyByNameImpl(chainId, name)
+    fetchCurrencyJobResult = await fetchCurrencyByNameImpl(chainNetwork, name)
     fetchCurrencyJobResultCode = Math.random()
   }, 500)
 
@@ -114,15 +74,15 @@ export const fetchCurrenciesByName = async (
 }
 
 export const fetchCurrencyByNameImpl = async (
-  chainId: number,
+  chainNetwork: string,
   name: string,
 ): Promise<Currency[]> => {
-  const chain = findSupportChain(chainId)
+  const chain = findSupportChain(chainNetwork)
   if (!chain) {
     return []
   }
 
-  const cacheKey = getCurrencyCacheKey(chainId, name)
+  const cacheKey = getCurrencyCacheKey(chainNetwork, name)
   if (currencyCache[cacheKey] !== undefined) {
     return currencyCache[cacheKey]
   }
@@ -161,7 +121,7 @@ export const fetchCurrencyByNameImpl = async (
     )
     const tokens = (
       await Promise.all(
-        addresses.map((address) => fetchCurrency(chainId, address)),
+        addresses.map((address) => fetchCurrency(chainNetwork, address)),
       )
     ).filter((token) => token !== undefined) as Currency[]
     currencyCache[cacheKey] = tokens
@@ -185,13 +145,13 @@ export const fetchCurrenciesDone = (currencies: Currency[], chain: Chain) => {
     currencies.find((currency) =>
       isAddressEqual(
         currency.address,
-        getAddress(DEFAULT_INPUT_CURRENCY[chain.id].address),
+        getAddress(DEFAULT_INPUT_CURRENCY[chain.network].address),
       ),
     ) &&
     currencies.find((currency) =>
       isAddressEqual(
         currency.address,
-        getAddress(DEFAULT_OUTPUT_CURRENCY[chain.id].address),
+        getAddress(DEFAULT_OUTPUT_CURRENCY[chain.network].address),
       ),
     )
   )

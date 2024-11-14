@@ -18,7 +18,7 @@ import { shortAddress } from '../../utils/address'
 import InspectCurrencyModal from '../modal/inspect-currency-modal'
 
 const CurrencySelect = ({
-  chainId,
+  chainNetwork,
   currencies,
   balances,
   prices,
@@ -26,7 +26,7 @@ const CurrencySelect = ({
   onCurrencySelect,
   defaultBlacklistedCurrency,
 }: {
-  chainId: number
+  chainNetwork: string
   currencies: Currency[]
   balances: Balances
   prices: Prices
@@ -59,7 +59,7 @@ const CurrencySelect = ({
         ) {
           setCustomizedCurrencies(undefined)
         } else {
-          const currency = await fetchCurrency(chainId, value)
+          const currency = await fetchCurrency(chainNetwork, value)
           if (currency) {
             setCustomizedCurrencies([currency])
           } else {
@@ -67,7 +67,7 @@ const CurrencySelect = ({
           }
         }
       } else if (!isAddress(value)) {
-        const currencies = await fetchCurrenciesByName(chainId, value)
+        const currencies = await fetchCurrenciesByName(chainNetwork, value)
         if (currencies.length > 0) {
           setCustomizedCurrencies(currencies)
         } else {
@@ -76,13 +76,12 @@ const CurrencySelect = ({
       }
       setLoadingCurrencies(false)
     },
-    [chainId, currencies, defaultBlacklistedCurrency],
+    [chainNetwork, currencies, defaultBlacklistedCurrency],
   )
 
   return (
     <>
       <InspectCurrencyModal
-        chainId={chainId}
         currency={inspectingCurrency}
         onCurrencySelect={onCurrencySelect}
         setInspectingCurrency={setInspectingCurrency}

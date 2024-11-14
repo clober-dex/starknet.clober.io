@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js'
-import { Depth, Market } from '@clober/v2-sdk'
 
 import { Decimals } from '../model/decimals'
+import { Depth } from '../model/depth'
+import { Market } from '../model/market'
 
 import { toPlacesString } from './bignumber'
 

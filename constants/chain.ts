@@ -1,22 +1,10 @@
-import { arbitrumSepolia, base, zkSync } from 'viem/chains'
+import { Chain, sepolia } from '@starknet-react/chains'
 
-import { Chain } from '../model/chain'
+export const DEFAULT_CHAIN_NETWORK = sepolia.network
 
-import { beraTestnetChain } from './dev-chain'
+export const supportChains: Chain[] = [sepolia]
 
-export const DEFAULT_CHAIN_ID = base.id
+export const testnetChainNetworks: string[] = [sepolia.network]
 
-export const supportChains: Chain[] = [
-  base,
-  arbitrumSepolia,
-  {
-    ...beraTestnetChain,
-    icon: 'https://img.cryptorank.io/coins/berachain1681996075164.png',
-  },
-  zkSync,
-]
-
-export const testnetChainIds = [arbitrumSepolia.id, beraTestnetChain.id]
-
-export const findSupportChain = (chainId: number): Chain | undefined =>
-  supportChains.find((chain) => chain.id === chainId)
+export const findSupportChain = (chainNetwork: string): Chain | undefined =>
+  supportChains.find((chain) => chain.network === chainNetwork)
