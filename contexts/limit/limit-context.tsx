@@ -1,6 +1,23 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { getAddress } from '@starknet-react/core'
 
 import { Currency } from '../../model/currency'
+import { getQueryParams, setQueryParams } from '../../utils/url'
+import {
+  deduplicateCurrencies,
+  fetchCurrenciesDone,
+  fetchCurrency,
+  LOCAL_STORAGE_INPUT_CURRENCY_KEY,
+  LOCAL_STORAGE_OUTPUT_CURRENCY_KEY,
+} from '../../utils/currency'
+import { useChainContext } from '../chain-context'
+import { useCurrencyContext } from '../currency-context'
+import {
+  DEFAULT_INPUT_CURRENCY,
+  DEFAULT_OUTPUT_CURRENCY,
+} from '../../constants/currency'
+import { isAddressEqual } from '../../utils/address'
+import { getQuoteToken } from '../../utils/token'
 
 type LimitContext = {
   isBid: boolean
@@ -45,10 +62,11 @@ const Context = React.createContext<LimitContext>({
 })
 
 export const LimitProvider = ({ children }: React.PropsWithChildren<{}>) => {
+  const { selectedChain } = useChainContext()
+  const { whitelistCurrencies, setCurrencies } = useCurrencyContext()
   const [isBid, setIsBid] = useState(true)
 
   const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [inputCurrency, _setInputCurrency] = useState<Currency | undefined>(
     undefined,
   )
@@ -56,7 +74,6 @@ export const LimitProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
     useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [outputCurrency, _setOutputCurrency] = useState<Currency | undefined>(
     undefined,
   )
@@ -66,15 +83,128 @@ export const LimitProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const [priceInput, setPriceInput] = useState('')
 
   const setInputCurrency = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (currency: Currency | undefined) => {},
-    [],
+    (currency: Currency | undefined) => {
+      if (currency) {
+        localStorage.setItem(
+          LOCAL_STORAGE_INPUT_CURRENCY_KEY('limit', selectedChain),
+          currency.address,
+        )
+        setQueryParams({
+          inputCurrency: currency.address,
+        })
+      } else {
+        localStorage.removeItem(
+          LOCAL_STORAGE_INPUT_CURRENCY_KEY('limit', selectedChain),
+        )
+      }
+      _setInputCurrency(currency)
+    },
+    [selectedChain],
   )
 
   const setOutputCurrency = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (currency: Currency | undefined) => {},
-    [],
+    (currency: Currency | undefined) => {
+      if (currency) {
+        localStorage.setItem(
+          LOCAL_STORAGE_OUTPUT_CURRENCY_KEY('limit', selectedChain),
+          currency.address,
+        )
+        setQueryParams({
+          outputCurrency: currency.address,
+        })
+      } else {
+        localStorage.removeItem(
+          LOCAL_STORAGE_OUTPUT_CURRENCY_KEY('limit', selectedChain),
+        )
+      }
+      _setOutputCurrency(currency)
+    },
+    [selectedChain],
+  )
+
+  useEffect(
+    () => {
+      if (!fetchCurrenciesDone(whitelistCurrencies, selectedChain)) {
+        setInputCurrency(DEFAULT_INPUT_CURRENCY[selectedChain.network])
+        setOutputCurrency(DEFAULT_OUTPUT_CURRENCY[selectedChain.network])
+        return
+      }
+
+      const action = async () => {
+        const inputCurrencyAddress =
+          getQueryParams()?.inputCurrency ??
+          localStorage.getItem(
+            LOCAL_STORAGE_INPUT_CURRENCY_KEY('limit', selectedChain),
+          )
+        const outputCurrencyAddress =
+          getQueryParams()?.outputCurrency ??
+          localStorage.getItem(
+            LOCAL_STORAGE_OUTPUT_CURRENCY_KEY('limit', selectedChain),
+          )
+
+        const _inputCurrency = inputCurrencyAddress
+          ? whitelistCurrencies.find((currency) =>
+              isAddressEqual(
+                currency.address,
+                getAddress(inputCurrencyAddress),
+              ),
+            ) ??
+            (await fetchCurrency(
+              selectedChain.network,
+              getAddress(inputCurrencyAddress),
+            ))
+          : DEFAULT_INPUT_CURRENCY[selectedChain.network]
+        const _outputCurrency = outputCurrencyAddress
+          ? whitelistCurrencies.find((currency) =>
+              isAddressEqual(
+                currency.address,
+                getAddress(outputCurrencyAddress),
+              ),
+            ) ??
+            (await fetchCurrency(
+              selectedChain.network,
+              getAddress(outputCurrencyAddress),
+            ))
+          : DEFAULT_OUTPUT_CURRENCY[selectedChain.network]
+
+        setCurrencies(
+          deduplicateCurrencies(
+            [...whitelistCurrencies].concat(
+              _inputCurrency ? [_inputCurrency] : [],
+              _outputCurrency ? [_outputCurrency] : [],
+            ),
+          ),
+        )
+        setInputCurrency(_inputCurrency)
+        setOutputCurrency(_outputCurrency)
+
+        if (_inputCurrency && _outputCurrency) {
+          const quote = getQuoteToken({
+            chainNetwork: selectedChain.network,
+            token0: _inputCurrency.address,
+            token1: _outputCurrency.address,
+          })
+          if (isAddressEqual(quote, _inputCurrency.address)) {
+            setIsBid(true)
+          } else {
+            setIsBid(false)
+          }
+        } else {
+          setIsBid(true)
+        }
+      }
+      if (window.location.href.includes('/limit')) {
+        action()
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      selectedChain,
+      setCurrencies,
+      setInputCurrency,
+      setOutputCurrency,
+      whitelistCurrencies,
+      window.location.href,
+    ],
   )
 
   return (

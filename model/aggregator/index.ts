@@ -2,7 +2,6 @@ import { Chain } from '@starknet-react/chains'
 
 import { Currency } from '../currency'
 import { Prices } from '../prices'
-import { PathViz } from '../pathviz'
 
 export interface Aggregator {
   baseUrl: string
@@ -19,7 +18,6 @@ export interface Aggregator {
   ): Promise<{
     amountOut: bigint
     gasLimit: bigint
-    pathViz: PathViz | undefined
     aggregator: Aggregator
   }>
 

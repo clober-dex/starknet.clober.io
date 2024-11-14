@@ -6,6 +6,7 @@ import { Currency } from '../model/currency'
 import { Prices } from '../model/prices'
 import { Balances } from '../model/balances'
 import { Allowances } from '../model/allowances'
+import { fetchWhitelistCurrencies } from '../apis/currencies'
 
 import { useChainContext } from './chain-context'
 
@@ -36,7 +37,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: whitelistCurrencies } = useQuery({
     queryKey: ['currencies', selectedChain.network],
     queryFn: async () => {
-      return []
+      return fetchWhitelistCurrencies(selectedChain.network)
     },
     initialData: [],
   }) as {

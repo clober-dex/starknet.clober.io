@@ -1,6 +1,6 @@
 import React from 'react'
-import { getAddress, isAddressEqual } from 'viem'
 import BigNumber from 'bignumber.js'
+import { getAddress } from '@starknet-react/core'
 
 import NumberInput from '../input/number-input'
 import CurrencyAmountInput from '../input/currency-amount-input'
@@ -14,6 +14,7 @@ import CheckIcon from '../icon/check-icon'
 import { toPlacesString } from '../../utils/bignumber'
 import { getPriceDecimals } from '../../utils/prices'
 import { Market } from '../../model/market'
+import { isAddressEqual } from '../../utils/address'
 
 export const LimitForm = ({
   chainNetwork,

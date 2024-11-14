@@ -30,6 +30,7 @@
     "react-select": "^5.7.5",
     "react-tooltip": "^5.27.0",
     "reactflow": "^11.9.4",
+    "starknetkit": "^2.3.3",
     "uuid": "^10.0.0",
     "viem": "^1.20.1"
   },

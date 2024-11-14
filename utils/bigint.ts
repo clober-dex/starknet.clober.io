@@ -37,3 +37,8 @@ export const formatUnits = (
   const fixed = new BigNumber(formatted).toFixed(underHalfPennyDecimals)
   return +fixed === 0 ? formatted : fixed
 }
+
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString()
+}

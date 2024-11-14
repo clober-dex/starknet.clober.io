@@ -30,7 +30,12 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
   const connectors = [braavos(), argent()]
 
   return (
-    <StarknetConfig chains={chains} provider={provider} connectors={connectors}>
+    <StarknetConfig
+      chains={chains}
+      provider={provider}
+      connectors={connectors}
+      autoConnect={true}
+    >
       {children}
     </StarknetConfig>
   )
@@ -81,7 +86,7 @@ const MainComponentWrapper = ({ children }: React.PropsWithChildren) => {
           <button
             className="flex font-bold items-center justify-center text-base sm:text-2xl w-16 sm:w-[120px] bg-transparent text-gray-500 disabled:text-white border-0 rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-white"
             disabled={router.pathname === '/limit'}
-            onClick={() => router.push(`/limit?chain=${selectedChain.id}`)}
+            onClick={() => router.push(`/limit?chain=${selectedChain.network}`)}
           >
             Limit
           </button>
@@ -140,30 +145,16 @@ function App({ Component, pageProps }: AppProps) {
           <TransactionProvider>
             <ChainProvider>
               <CurrencyProvider>
-                {router.pathname === '/iframe' ? (
-                  <LimitProvidersWrapper>
-                    <div className="flex flex-col w-full min-h-[100vh] bg-gray-950">
-                      <HeaderContainer onMenuClick={() => setOpen(true)} />
-
-                      <div className="flex flex-1 relative justify-center bg-gray-950">
-                        <div className="flex w-full flex-col items-center gap-4 sm:gap-6 p-4 pb-0">
-                          <Component {...pageProps} />
-                        </div>
-                      </div>
-                    </div>
-                  </LimitProvidersWrapper>
-                ) : (
-                  <LimitProvidersWrapper>
-                    <div className="flex flex-col w-[100vw] min-h-[100vh] bg-gray-950">
-                      <PanelWrapper open={open} setOpen={setOpen} />
-                      <HeaderContainer onMenuClick={() => setOpen(true)} />
-                      <MainComponentWrapper>
-                        <Component {...pageProps} />
-                      </MainComponentWrapper>
-                      <FooterWrapper />
-                    </div>
-                  </LimitProvidersWrapper>
-                )}
+                <LimitProvidersWrapper>
+                  <div className="flex flex-col w-[100vw] min-h-[100vh] bg-gray-950">
+                    <PanelWrapper open={open} setOpen={setOpen} />
+                    <HeaderContainer onMenuClick={() => setOpen(true)} />
+                    <MainComponentWrapper>
+                      <Component {...pageProps} />
+                    </MainComponentWrapper>
+                    <FooterWrapper />
+                  </div>
+                </LimitProvidersWrapper>
               </CurrencyProvider>
             </ChainProvider>
           </TransactionProvider>

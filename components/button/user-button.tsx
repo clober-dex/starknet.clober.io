@@ -6,15 +6,17 @@ import { formatAddress } from '../../utils/string'
 
 export const UserButton = ({
   address,
-  openAccountModal,
+  disconnectFn,
 }: {
   address: `0x${string}`
-  openAccountModal: () => void
+  disconnectFn: () => Promise<void>
 }) => {
   return (
     <button
       className="flex items-center justify-center gap-2 md:justify-start rounded md:w-full py-0 px-2 md:px-4 cursor-pointer h-8 bg-gray-800 md:bg-gray-950 hover:bg-gray-600 active::bg-gray-600"
-      onClick={() => openAccountModal && openAccountModal()}
+      onClick={async () => {
+        await disconnectFn()
+      }}
     >
       <UserIcon
         className="w-4 h-4 rounded-[100%] aspect-square"

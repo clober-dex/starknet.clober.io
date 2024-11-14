@@ -1,5 +1,5 @@
-import { getAddress, isAddressEqual } from 'viem'
 import { Chain } from '@starknet-react/chains'
+import { getAddress } from '@starknet-react/core'
 
 import { findSupportChain } from '../constants/chain'
 import { Currency } from '../model/currency'
@@ -8,6 +8,8 @@ import {
   DEFAULT_OUTPUT_CURRENCY,
 } from '../constants/currency'
 import { fetchApi } from '../apis/utils'
+
+import { isAddressEqual } from './address'
 
 export const LOCAL_STORAGE_INPUT_CURRENCY_KEY = (
   context: string,

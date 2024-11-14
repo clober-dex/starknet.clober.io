@@ -10,10 +10,10 @@ export default function Home() {
   const router = useRouter()
   if (selectedMarket) {
     router.push(
-      `/limit?chain=${selectedChain.id}&inputCurrency=${selectedMarket.quote.address}&outputCurrency=${selectedMarket.base.address}`,
+      `/limit?chain=${selectedChain.network}&inputCurrency=${selectedMarket.quote.address}&outputCurrency=${selectedMarket.base.address}`,
     )
   } else {
-    router.push(`/limit?chain=${selectedChain.id}`)
+    router.push(`/limit?chain=${selectedChain.network}`)
   }
   return <div />
 }

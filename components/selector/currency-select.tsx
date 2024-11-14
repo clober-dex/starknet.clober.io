@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
-import { getAddress, isAddress, isAddressEqual } from 'viem'
 import Image from 'next/image'
+import { getAddress } from '@starknet-react/core'
 
 import { Currency } from '../../model/currency'
 import { LeftBracketAngleSvg } from '../svg/left-bracket-angle-svg'
@@ -14,7 +14,7 @@ import {
   fetchCurrenciesByName,
   fetchCurrency,
 } from '../../utils/currency'
-import { shortAddress } from '../../utils/address'
+import { isAddress, isAddressEqual, shortAddress } from '../../utils/address'
 import InspectCurrencyModal from '../modal/inspect-currency-modal'
 
 const CurrencySelect = ({
@@ -59,7 +59,7 @@ const CurrencySelect = ({
         ) {
           setCustomizedCurrencies(undefined)
         } else {
-          const currency = await fetchCurrency(chainNetwork, value)
+          const currency = await fetchCurrency(chainNetwork, getAddress(value))
           if (currency) {
             setCustomizedCurrencies([currency])
           } else {

@@ -1,6 +1,5 @@
 import { Currency } from '../../model/currency'
 import { Aggregator } from '../../model/aggregator'
-import { PathViz } from '../../model/pathviz'
 
 export async function fetchQuotes(
   aggregators: Aggregator[],
@@ -13,7 +12,6 @@ export async function fetchQuotes(
 ): Promise<{
   amountOut: bigint
   gasLimit: bigint
-  pathViz: PathViz | undefined
   aggregator: Aggregator
 }> {
   const quotes = await Promise.all(

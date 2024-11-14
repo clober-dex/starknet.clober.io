@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
-import { getAddress, isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import { parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
-import { useAccount } from '@starknet-react/core'
+import { getAddress, useAccount } from '@starknet-react/core'
 
 import { LimitForm } from '../components/form/limit-form'
 import OrderBook from '../components/order-book'
@@ -14,11 +14,12 @@ import { ActionButton } from '../components/button/action-button'
 import { OpenOrderCard } from '../components/card/open-order-card'
 import { useLimitContractContext } from '../contexts/limit/limit-contract-context'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { isAddressesEqual } from '../utils/address'
+import { isAddressEqual, isAddressesEqual } from '../utils/address'
 import { fetchQuotes } from '../apis/swap/quotes'
 import { formatUnits } from '../utils/bigint'
 import { toPlacesString } from '../utils/bignumber'
 import { AGGREGATORS } from '../constants/aggregators'
+import { getQuoteToken } from '../utils/token'
 
 import { ChartContainer } from './chart-container'
 
@@ -62,15 +63,18 @@ export const LimitContainer = () => {
 
   const [quoteCurrency, baseCurrency] = useMemo(() => {
     if (inputCurrency && outputCurrency) {
-      // TODO
-      const quote = zeroAddress
+      const quote = getQuoteToken({
+        chainNetwork: selectedChain.network,
+        token0: inputCurrency.address,
+        token1: outputCurrency.address,
+      })
       return isAddressEqual(quote, inputCurrency.address)
         ? [inputCurrency, outputCurrency]
         : [outputCurrency, inputCurrency]
     } else {
       return [undefined, undefined]
     }
-  }, [inputCurrency, outputCurrency])
+  }, [inputCurrency, outputCurrency, selectedChain.network])
 
   const amount = useMemo(
     () => parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18),
@@ -185,8 +189,11 @@ export const LimitContainer = () => {
               action: async () => {
                 if (inputCurrency && outputCurrency) {
                   setIsFetchingQuotes(true)
-                  // TODO
-                  const quoteToken = zeroAddress
+                  const quoteToken = getQuoteToken({
+                    chainNetwork: selectedChain.network,
+                    token0: inputCurrency.address,
+                    token1: outputCurrency.address,
+                  })
                   const [quoteCurrency, baseCurrency] = isAddressEqual(
                     quoteToken,
                     inputCurrency.address,
@@ -217,7 +224,8 @@ export const LimitContainer = () => {
             }}
             actionButtonProps={{
               disabled:
-                (!inputCurrency ||
+                (!userAddress ||
+                  !inputCurrency ||
                   !outputCurrency ||
                   priceInput === '' ||
                   (selectedMarket &&
@@ -244,7 +252,10 @@ export const LimitContainer = () => {
                   selectedMarket,
                 )
               },
-              text: !inputCurrency
+
+              text: !userAddress
+                ? 'Connect wallet'
+                : !inputCurrency
                 ? 'Select input currency'
                 : !outputCurrency
                 ? 'Select output currency'

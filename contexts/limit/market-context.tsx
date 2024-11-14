@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { useQuery } from '@tanstack/react-query'
+import { sepolia } from '@starknet-react/chains'
 
 import {
   calculateInputCurrencyAmountString,
   calculateOutputCurrencyAmountString,
+  isOrderBookEqual,
   parseDepth,
 } from '../../utils/order-book'
 import { getPriceDecimals } from '../../utils/prices'
@@ -16,6 +18,9 @@ import { useChainContext } from '../chain-context'
 import { getCurrencyAddress } from '../../utils/currency'
 import { toPlacesString } from '../../utils/bignumber'
 import { Market } from '../../model/market'
+import { isMarketEqual } from '../../utils/market'
+import { Depth } from '../../model/depth'
+import { DEFAULT_INPUT_CURRENCY } from '../../constants/currency'
 
 import { useLimitContext } from './limit-context'
 
@@ -93,7 +98,6 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
     'limit',
     selectedChain,
   )
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: market } = useQuery({
     queryKey: [
       'market',
@@ -102,12 +106,37 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
       outputCurrencyAddress,
     ],
     queryFn: async () => {
-      return null
+      // TODO
+      return {
+        network: sepolia.network,
+        quote: DEFAULT_INPUT_CURRENCY[selectedChain.network],
+        base: DEFAULT_INPUT_CURRENCY[selectedChain.network],
+        makerFee: 0,
+        takerFee: 0,
+        asks: [] as Depth[],
+        bids: [] as Depth[],
+      } as Market
     },
     initialData: null,
     refetchInterval: 2000,
     refetchIntervalInBackground: true,
   })
+
+  useEffect(() => {
+    if (!market) {
+      setSelectedMarket(undefined)
+    } else if (!isMarketEqual(selectedMarket, market)) {
+      setSelectedMarket(market)
+    } else if (
+      selectedMarket &&
+      market &&
+      isMarketEqual(selectedMarket, market) &&
+      (!isOrderBookEqual(selectedMarket?.asks ?? [], market?.asks ?? []) ||
+        !isOrderBookEqual(selectedMarket?.bids ?? [], market?.bids ?? []))
+    ) {
+      setSelectedMarket(market)
+    }
+  }, [market, selectedMarket])
 
   const availableDecimalPlacesGroups = useMemo(() => {
     return selectedMarket &&
@@ -163,7 +192,7 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
     }
     setSelectedDecimalPlaces(availableDecimalPlacesGroups[0])
   }, [
-    selectedChain.id,
+    selectedChain.network,
     availableDecimalPlacesGroups,
     selectedMarket?.quote.address,
     selectedMarket?.base.address,
@@ -214,7 +243,7 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
     setPriceInput,
     inputCurrency,
     outputCurrency,
-    selectedChain.id,
+    selectedChain.network,
   ])
 
   const previousValues = useRef({

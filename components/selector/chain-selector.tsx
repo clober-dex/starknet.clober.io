@@ -34,7 +34,7 @@ export default function ChainSelector({
         }}
         className="flex items-center justify-center lg:justify-start h-8 w-8 lg:w-auto p-0 lg:px-2 lg:gap-2 rounded bg-gray-800 hover:bg-gray-700 text-white"
       >
-        <ChainIcon chain={chain} />
+        <ChainIcon />
         <p className={`hidden lg:block ${textStyles.body3Bold}`}>
           {chain.network}
         </p>
@@ -164,8 +164,8 @@ function ChainList({
                   }
                 }}
               >
-                <ChainIcon chain={_chain} />
-                <span>{_chain.network}</span>
+                <ChainIcon />
+                <span>{_chain.name}</span>
                 {_chain.network === chain.network ? (
                   <CheckSvg className="ml-auto" />
                 ) : (
