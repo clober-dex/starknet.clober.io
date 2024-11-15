@@ -1,6 +1,6 @@
 import { getAddress } from '@starknet-react/core'
 
-import { ETH_ADDRESSES, STABLE_COIN_ADDRESSES } from '../constants/currency'
+import { ETH_ADDRESS, STABLE_COIN_ADDRESSES } from '../constants/currency'
 
 import { isAddressEqual } from './address'
 
@@ -29,7 +29,7 @@ export const getQuoteToken = ({
 
   // include eth
   const eth = tokenAddresses.find((address) =>
-    isAddressEqual(address, ETH_ADDRESSES[chainNetwork]!),
+    isAddressEqual(address, ETH_ADDRESS[chainNetwork]!),
   )
   if (eth) {
     return eth

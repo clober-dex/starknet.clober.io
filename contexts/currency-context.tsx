@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAccount, useBalance } from '@starknet-react/core'
+import { getAddress, useAccount, useBalance } from '@starknet-react/core'
 import { useQuery } from '@tanstack/react-query'
 
 import { Currency } from '../model/currency'
@@ -7,6 +7,9 @@ import { Prices } from '../model/prices'
 import { Balances } from '../model/balances'
 import { Allowances } from '../model/allowances'
 import { fetchWhitelistCurrencies } from '../apis/currencies'
+import { isAddressEqual } from '../utils/address'
+import { multiCall } from '../utils/multi-call'
+import { CONTRACT_ADDRESSES } from '../constants/contract-addresses'
 
 import { useChainContext } from './chain-context'
 
@@ -54,7 +57,28 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       currencies,
     ],
     queryFn: async () => {
-      return {} as Balances
+      if (!userAddress) {
+        return {} as Balances
+      }
+      const uniqueCurrencies = currencies.filter(
+        (currency, index, self) =>
+          self.findIndex((c) => isAddressEqual(c.address, currency.address)) ===
+          index,
+      )
+      const results = await multiCall<string[]>(
+        selectedChain.network,
+        uniqueCurrencies.map(({ address }) => ({
+          contractAddress: address,
+          entrypoint: 'balanceOf',
+          calldata: [userAddress],
+        })),
+      )
+      return Object.fromEntries(
+        results.map((result, index) => [
+          uniqueCurrencies[index].address,
+          BigInt(result?.[0] ?? '0'),
+        ]),
+      ) as Balances
     },
     refetchInterval: 5 * 1000,
     refetchIntervalInBackground: true,
@@ -74,9 +98,61 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data } = useQuery({
     queryKey: ['allowances', userAddress, selectedChain.network, currencies],
     queryFn: async () => {
+      if (!userAddress) {
+        return {
+          allowances: {},
+          isOpenOrderApproved: false,
+        }
+      }
+      const spenders: `0x${string}`[] = [
+        CONTRACT_ADDRESSES[selectedChain.network].Controller,
+      ]
+      const calls = [
+        ...spenders
+          .map((spender) => {
+            return currencies.map((currency) => ({
+              contractAddress: currency.address,
+              entrypoint: 'allowance',
+              calldata: [userAddress, spender],
+            }))
+          }, [])
+          .flat(),
+        {
+          contractAddress:
+            CONTRACT_ADDRESSES[selectedChain.network].BookManager,
+          entrypoint: 'isApprovedForAll',
+          calldata: [
+            userAddress,
+            CONTRACT_ADDRESSES[selectedChain.network].Controller,
+          ],
+        },
+      ]
+      const results = await multiCall<string[]>(selectedChain.network, calls)
       return {
-        allowances: {},
-        isOpenOrderApproved: false,
+        isOpenOrderApproved: !!Number(results.slice(-1)?.[0]),
+        allowances: results.slice(0, -1).reduce(
+          (
+            acc: {
+              [key in `0x${string}`]: { [key in `0x${string}`]: bigint }
+            },
+            result,
+            i,
+          ) => {
+            const currency = currencies[i % currencies.length]
+            const spender = getAddress(
+              spenders[Math.floor(i / currencies.length)],
+            )
+            const resultValue = BigInt(result?.[0] ?? '0')
+            return {
+              ...acc,
+              [spender]: {
+                ...acc[spender],
+                [getAddress(currency.address)]: resultValue,
+              },
+            }
+          },
+          spenders.reduce((acc, spender) => ({ ...acc, [spender]: {} }), {}),
+        ),
       }
     },
     refetchInterval: 5 * 1000,

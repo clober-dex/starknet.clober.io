@@ -11,6 +11,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@argent/x-multicall": "^7.1.0",
     "@headlessui/react": "^1.7.16",
     "@heroicons/react": "^2.0.18",
     "@sentry/nextjs": "^8.10.0",
@@ -30,6 +31,7 @@
     "react-select": "^5.7.5",
     "react-tooltip": "^5.27.0",
     "reactflow": "^11.9.4",
+    "starknet": "^6.17.0",
     "starknetkit": "^2.3.3",
     "uuid": "^10.0.0",
     "viem": "^1.20.1"

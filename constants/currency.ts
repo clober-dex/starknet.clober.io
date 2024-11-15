@@ -49,7 +49,7 @@ export const DEFAULT_OUTPUT_CURRENCY: {
   },
 }
 
-export const ETH_ADDRESSES: {
+export const ETH_ADDRESS: {
   [network: string]: `0x${string}`
 } = {
   [sepolia.network]:
