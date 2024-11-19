@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { useQuery } from '@tanstack/react-query'
-import { sepolia } from '@starknet-react/chains'
+import { getAddress } from '@starknet-react/core'
 
 import {
   calculateInputCurrencyAmountString,
@@ -9,7 +9,6 @@ import {
   isOrderBookEqual,
   parseDepth,
 } from '../../utils/order-book'
-import { getPriceDecimals } from '../../utils/prices'
 import {
   Decimals,
   DEFAULT_DECIMAL_PLACE_GROUP_LENGTH,
@@ -19,8 +18,8 @@ import { getCurrencyAddress } from '../../utils/currency'
 import { toPlacesString } from '../../utils/bignumber'
 import { Market } from '../../model/market'
 import { isMarketEqual } from '../../utils/market'
-import { Depth } from '../../model/depth'
-import { DEFAULT_INPUT_CURRENCY } from '../../constants/currency'
+import { getPriceDecimals } from '../../utils/prices'
+import { fetchMarket } from '../../apis/market'
 
 import { useLimitContext } from './limit-context'
 
@@ -106,16 +105,14 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
       outputCurrencyAddress,
     ],
     queryFn: async () => {
-      // TODO
-      return {
-        network: sepolia.network,
-        quote: DEFAULT_INPUT_CURRENCY[selectedChain.network],
-        base: DEFAULT_INPUT_CURRENCY[selectedChain.network],
-        makerFee: 0,
-        takerFee: 0,
-        asks: [] as Depth[],
-        bids: [] as Depth[],
-      } as Market
+      if (inputCurrencyAddress && outputCurrencyAddress) {
+        return fetchMarket(selectedChain.network, [
+          getAddress(inputCurrencyAddress),
+          getAddress(outputCurrencyAddress),
+        ])
+      } else {
+        return null
+      }
     },
     initialData: null,
     refetchInterval: 2000,

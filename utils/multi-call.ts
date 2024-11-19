@@ -5,7 +5,7 @@ export const multiCall = async <T>(
   calls: {
     contractAddress: `0x${string}`
     entrypoint: string
-    calldata: any[]
+    calldata?: any[]
   }[],
 ): Promise<T[]> => {
   const results = await Promise.allSettled(

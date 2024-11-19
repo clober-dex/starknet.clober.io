@@ -10,6 +10,8 @@ import {
 import { fetchApi } from '../apis/utils'
 
 import { isAddressEqual } from './address'
+import { multiCall } from './multi-call'
+import { hexToString } from './string'
 
 export const LOCAL_STORAGE_INPUT_CURRENCY_KEY = (
   context: string,
@@ -25,8 +27,8 @@ export const QUERY_PARAM_OUTPUT_CURRENCY_KEY = 'outputCurrency'
 const currencyCache: {
   [key: string]: Currency[]
 } = {}
-const getCurrencyCacheKey = (chainNetwork: string, name: string) =>
-  `${chainNetwork}-${name.toLowerCase()}`
+const getCurrencyCacheKey = (chainNetwork: string, key: string) =>
+  `${chainNetwork}-${key.toLowerCase()}`
 
 let fetchCurrencyJobId: NodeJS.Timeout | null = null
 let fetchCurrencyJobResult: Currency[] = []
@@ -45,13 +47,23 @@ export const deduplicateCurrencies = (currencies: Currency[]) => {
 export const fetchCurrency = async (
   chainNetwork: string,
   address: `0x${string}`,
-): Promise<Currency | undefined> => {
-  return {
-    address,
-    name: 'test',
-    symbol: 'test',
-    decimals: 18,
+): Promise<Currency> => {
+  if (currencyCache[address] !== undefined) {
+    return currencyCache[address][0]
   }
+  const results = await multiCall<string[]>(chainNetwork, [
+    { contractAddress: address, entrypoint: 'name' },
+    { contractAddress: address, entrypoint: 'symbol' },
+    { contractAddress: address, entrypoint: 'decimals' },
+  ])
+  const currency = {
+    address,
+    name: results[0]?.[0] ? hexToString(results[0][0]) : 'Unknown',
+    symbol: results[1]?.[0] ? hexToString(results[1][0]) : 'Unknown',
+    decimals: Number(results[2]?.[0] ?? 18),
+  }
+  currencyCache[address] = [currency]
+  return currency
 }
 
 export const fetchCurrenciesByName = async (
