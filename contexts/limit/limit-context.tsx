@@ -143,7 +143,7 @@ export const LimitProvider = ({ children }: React.PropsWithChildren<{}>) => {
           )
 
         const _inputCurrency = inputCurrencyAddress
-          ? whitelistCurrencies.find((currency) =>
+          ? (whitelistCurrencies.find((currency) =>
               isAddressEqual(
                 currency.address,
                 getAddress(inputCurrencyAddress),
@@ -152,10 +152,10 @@ export const LimitProvider = ({ children }: React.PropsWithChildren<{}>) => {
             (await fetchCurrency(
               selectedChain.network,
               getAddress(inputCurrencyAddress),
-            ))
+            )))
           : DEFAULT_INPUT_CURRENCY[selectedChain.network]
         const _outputCurrency = outputCurrencyAddress
-          ? whitelistCurrencies.find((currency) =>
+          ? (whitelistCurrencies.find((currency) =>
               isAddressEqual(
                 currency.address,
                 getAddress(outputCurrencyAddress),
@@ -164,7 +164,7 @@ export const LimitProvider = ({ children }: React.PropsWithChildren<{}>) => {
             (await fetchCurrency(
               selectedChain.network,
               getAddress(outputCurrencyAddress),
-            ))
+            )))
           : DEFAULT_OUTPUT_CURRENCY[selectedChain.network]
 
         setCurrencies(
