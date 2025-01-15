@@ -15,9 +15,9 @@ export const WHITELISTED_CURRENCIES: {
     },
     {
       address:
-        '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d',
-      name: 'Starknet Token',
-      symbol: 'STRK',
+        '0x033566df80eb40d0183decd084e9f01ec4ff598889b695f6dc80699dae57b4f3',
+      name: 'Mock Token',
+      symbol: 'MOCK',
       decimals: 18,
       icon: '/starknet-logo.png',
     },
@@ -41,9 +41,9 @@ export const DEFAULT_OUTPUT_CURRENCY: {
 } = {
   [sepolia.network]: {
     address:
-      '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d',
-    name: 'Starknet Token',
-    symbol: 'STRK',
+      '0x033566df80eb40d0183decd084e9f01ec4ff598889b695f6dc80699dae57b4f3',
+    name: 'Mock Token',
+    symbol: 'MOCK',
     decimals: 18,
     icon: '/starknet-logo.png',
   },
