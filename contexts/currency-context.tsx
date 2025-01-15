@@ -69,7 +69,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         selectedChain.network,
         uniqueCurrencies.map(({ address }) => ({
           contractAddress: address,
-          entrypoint: 'balanceOf',
+          entrypoint: 'balance_of',
           calldata: [userAddress],
         })),
       )
@@ -120,7 +120,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         {
           contractAddress:
             CONTRACT_ADDRESSES[selectedChain.network].BookManager,
-          entrypoint: 'isApprovedForAll',
+          entrypoint: 'is_approved_for_all',
           calldata: [
             userAddress,
             CONTRACT_ADDRESSES[selectedChain.network].Controller,
