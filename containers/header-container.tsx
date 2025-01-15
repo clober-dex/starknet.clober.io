@@ -10,8 +10,9 @@ import { supportChains } from '../constants/chain'
 import { DocsIconSvg } from '../components/svg/docs-icon-svg'
 import { DiscordIconSvg } from '../components/svg/discord-icon-svg'
 import { TwitterLogoSvg } from '../components/svg/twitter-logo-svg'
+import MenuSvg from '../components/svg/menu-svg'
 
-const HeaderContainer = () => {
+const HeaderContainer = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const router = useRouter()
   const { selectedChain, setSelectedChain } = useChainContext()
   const { address, status } = useAccount()
@@ -36,14 +37,6 @@ const HeaderContainer = () => {
             className="text-sm text-gray-500 font-semibold disabled:text-white"
           >
             Trade
-          </button>
-          <button
-            disabled={true /*TODO: router.pathname.includes('/earn')*/}
-            onClick={() => router.push(`/earn?chain=${selectedChain.network}`)}
-            // className="text-sm text-gray-500 font-semibold disabled:text-white"
-            className="text-sm text-gray-500 font-semibold"
-          >
-            Earn
           </button>
         </div>
       </div>
@@ -80,6 +73,12 @@ const HeaderContainer = () => {
           chains={supportChains}
         />
         <WalletSelector address={address} status={status} />
+        <button
+          className="w-8 h-8 lg:hover:bg-gray-200 hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden"
+          onClick={onMenuClick}
+        >
+          <MenuSvg />
+        </button>
       </div>
     </div>
   )

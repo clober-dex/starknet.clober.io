@@ -19,7 +19,6 @@ import { MarketProvider } from '../contexts/limit/market-context'
 import { TransactionProvider } from '../contexts/transaction-context'
 import { LimitProvider } from '../contexts/limit/limit-context'
 import { OpenOrderProvider } from '../contexts/limit/open-order-context'
-import { LimitContractProvider } from '../contexts/limit/limit-contract-context'
 import Panel from '../components/panel'
 import ErrorBoundary from '../components/error-boundary'
 import { CurrencyProvider } from '../contexts/currency-context'
@@ -44,11 +43,9 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
 const LimitProvidersWrapper = ({ children }: React.PropsWithChildren) => {
   return (
     <OpenOrderProvider>
-      <LimitContractProvider>
-        <LimitProvider>
-          <MarketProvider>{children}</MarketProvider>
-        </LimitProvider>
-      </LimitContractProvider>
+      <LimitProvider>
+        <MarketProvider>{children}</MarketProvider>
+      </LimitProvider>
     </OpenOrderProvider>
   )
 }
