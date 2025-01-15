@@ -106,10 +106,11 @@ export const MarketProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
     queryFn: async () => {
       if (inputCurrencyAddress && outputCurrencyAddress) {
-        return fetchMarket(selectedChain.network, [
+        const market = await fetchMarket(selectedChain.network, [
           getAddress(inputCurrencyAddress),
           getAddress(outputCurrencyAddress),
         ])
+        return market.toJson()
       } else {
         return null
       }

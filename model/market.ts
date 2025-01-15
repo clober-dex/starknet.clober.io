@@ -6,9 +6,14 @@ import { formatPrice } from '../utils/prices'
 import { formatUnits } from '../utils/bigint'
 import { getMarketId } from '../utils/market'
 
-import { Depth } from './depth'
 import { Currency } from './currency'
 import { Book } from './book'
+
+type Depth = {
+  price: string
+  tick: bigint
+  baseAmount: bigint
+}
 
 export type Market = {
   network: string
