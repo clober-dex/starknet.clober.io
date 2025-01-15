@@ -37,7 +37,7 @@ import { Currency } from '../model/currency'
 import { fetchMarket } from '../apis/market'
 import { formatPrice, parsePrice } from '../utils/prices'
 import { invertTick, toPrice } from '../utils/tick'
-import { ERC20_ABI } from '../abis/arc20-abi'
+import { ERC20_ABI } from '../abis/erc20-abi'
 
 import { ChartContainer } from './chart-container'
 
@@ -202,21 +202,26 @@ export const LimitContainer = () => {
       amount: bigint,
       price: string,
       postOnly: boolean,
-      selectedMarket: Market,
     ) => {
-      if (!inputCurrency || !outputCurrency || !selectedMarket) {
+      if (!inputCurrency || !outputCurrency) {
         return
       }
 
       try {
+        const market = await fetchMarket(
+          selectedChain.network,
+          [inputCurrency.address, outputCurrency.address],
+          100,
+        )
+
         const isBid = isAddressEqual(
-          selectedMarket.quote.address,
+          market.quote.address,
           inputCurrency.address,
         )
 
         if (
-          (isBid && !selectedMarket.bidBook.isOpened) ||
-          (!isBid && !selectedMarket.askBook.isOpened)
+          (isBid && !market.bidBook.isOpened) ||
+          (!isBid && !market.askBook.isOpened)
         ) {
           setConfirmation({
             title: `Checking Book Availability`,
@@ -242,11 +247,6 @@ export const LimitContainer = () => {
           maxApprove()
         }
 
-        const market = await fetchMarket(
-          selectedChain.network,
-          [inputCurrency.address, outputCurrency.address],
-          100,
-        )
         const { roundingDownTick } = parsePrice(
           Number(price),
           market.quote.decimals,
@@ -490,7 +490,6 @@ export const LimitContainer = () => {
                     amount,
                     priceInput,
                     isPostOnly,
-                    selectedMarket,
                   )
                 }
               },

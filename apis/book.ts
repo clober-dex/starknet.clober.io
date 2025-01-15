@@ -2,6 +2,8 @@ import { Currency } from '../model/currency'
 import { calculateUnitSize } from '../utils/unit-size'
 import { toBookId } from '../utils/book-id'
 import { Book } from '../model/book'
+import { multiCall } from '../utils/multi-call'
+import { CONTRACT_ADDRESSES } from '../constants/contract-addresses'
 
 import { fetchIsMarketOpened } from './market'
 
@@ -9,8 +11,7 @@ export const fetchBook = async (
   chainNetwork: string,
   quoteCurrency: Currency,
   baseCurrency: Currency,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  n: number, // todo
+  n: number,
 ) => {
   const unitSize = await calculateUnitSize(chainNetwork, quoteCurrency)
   const bookId = toBookId(
@@ -21,19 +22,25 @@ export const fetchBook = async (
   )
 
   const [depths, isOpened] = await Promise.all([
-    Promise.resolve([] as { tick: number; depth: bigint }[]), // TODO: fetch depths
+    multiCall<string>(chainNetwork, [
+      {
+        contractAddress: CONTRACT_ADDRESSES[chainNetwork].BookViewer,
+        entrypoint: 'get_liquidity',
+        calldata: [bookId, Number(2n ** 19n - 1n), BigInt(n)],
+      },
+    ]),
     fetchIsMarketOpened(chainNetwork, bookId),
   ])
-
+  const length = Number(depths[0][0])
   return new Book({
     network: chainNetwork,
     id: bookId,
     base: baseCurrency,
     quote: quoteCurrency,
     unitSize,
-    depths: depths.map(({ tick, depth }: { tick: number; depth: bigint }) => ({
-      tick: BigInt(tick),
-      unitAmount: depth,
+    depths: Array.from({ length }, (_, i) => ({
+      tick: BigInt(depths[0][i * 2 + 1]),
+      unitAmount: BigInt(depths[0][i * 2 + 2]),
     })),
     isOpened,
   })
