@@ -38,6 +38,9 @@ export const toPlacesAmountString = (
   number: BigNumber.Value,
   price: number,
 ): string => {
+  if (price === 0) {
+    return number.toString()
+  }
   const underHalfPennyDecimals =
     Math.floor(Math.max(-Math.log10(0.005 / price), 0) / 2) * 2
   return new BigNumber(number).toFixed(underHalfPennyDecimals)
