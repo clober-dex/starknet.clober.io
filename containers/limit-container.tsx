@@ -8,6 +8,7 @@ import {
   useSendTransaction,
 } from '@starknet-react/core'
 import { useQueryClient } from '@tanstack/react-query'
+import { CairoUint256 } from 'starknet'
 
 import { LimitForm } from '../components/form/limit-form'
 import OrderBook from '../components/order-book'
@@ -32,12 +33,12 @@ import {
   Confirmation,
   useTransactionContext,
 } from '../contexts/transaction-context'
-import { Market } from '../model/market'
 import { Currency } from '../model/currency'
 import { fetchMarket } from '../apis/market'
 import { formatPrice, parsePrice } from '../utils/prices'
 import { invertTick, toPrice } from '../utils/tick'
 import { ERC20_ABI } from '../abis/erc20-abi'
+import { encodeNumber } from '../utils/number'
 
 import { ChartContainer } from './chart-container'
 
@@ -135,7 +136,7 @@ export const LimitContainer = () => {
     address: inputCurrency ? inputCurrency.address : undefined,
   })
 
-  const { send: open } = useSendTransaction({
+  const { sendAsync: open } = useSendTransaction({
     calls:
       controller && outputCurrency && inputCurrency && selectedMarket
         ? [
@@ -168,14 +169,14 @@ export const LimitContainer = () => {
         : undefined,
   })
 
-  const { send: make } = useSendTransaction({
+  const { sendAsync: make } = useSendTransaction({
     calls:
       controller && selectedMarket && priceInput.length > 0
         ? [
             controller.populate('make', [
-              selectedMarket.bidBook.id,
-              tick,
-              amount,
+              isBid ? selectedMarket.bidBook.id : selectedMarket.askBook.id,
+              encodeNumber(tick).toString(),
+              new CairoUint256(amount).toUint256HexString(),
               ['0'],
               9999999999,
             ]),
@@ -183,16 +184,15 @@ export const LimitContainer = () => {
         : undefined,
   })
 
-  const { send: maxApprove } = useSendTransaction({
-    calls:
-      erc20 && inputCurrency
-        ? [
-            erc20.populate('approve', [
-              CONTRACT_ADDRESSES[selectedChain.network].Controller as string,
-              115792089237316195423570985008687907853269984665640564039457584007913129639935n,
-            ]),
-          ]
-        : undefined,
+  const { sendAsync: maxApprove } = useSendTransaction({
+    calls: erc20
+      ? [
+          erc20.populate('approve', [
+            CONTRACT_ADDRESSES[selectedChain.network].Controller as string,
+            115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+          ]),
+        ]
+      : undefined,
   })
 
   const limit = useCallback(
@@ -228,7 +228,7 @@ export const LimitContainer = () => {
             body: '',
             fields: [],
           })
-          open()
+          await open()
         }
 
         setConfirmation({
@@ -238,26 +238,29 @@ export const LimitContainer = () => {
         })
 
         const spender = CONTRACT_ADDRESSES[selectedChain.network].Controller
+        console.log(
+          'allowances',
+          allowances[spender][inputCurrency.address],
+          amount,
+        )
         if (allowances[spender][inputCurrency.address] < amount) {
           setConfirmation({
             title: 'Approve',
             body: 'Please confirm in your wallet.',
             fields: [],
           })
-          maxApprove()
+          await maxApprove()
         }
-
-        const { roundingDownTick } = parsePrice(
-          Number(price),
-          market.quote.decimals,
-          market.base.decimals,
-        )
 
         const isTakingBidSide = !isBid
         const { takenQuoteAmount, spentBaseAmount, bookId, events } =
           market.spend({
             spentBase: isTakingBidSide,
-            limitTick: roundingDownTick,
+            limitTick: parsePrice(
+              Number(price),
+              market.quote.decimals,
+              market.base.decimals,
+            ).roundingDownTick,
             amountIn: amount,
           })
         const results = events.map(
@@ -284,7 +287,7 @@ export const LimitContainer = () => {
             body: 'Please confirm in your wallet.',
             fields: [
               {
-                direction: 'out',
+                direction: 'in',
                 currency: inputCurrency,
                 label: inputCurrency.symbol,
                 value: toPlacesAmountString(
@@ -295,7 +298,7 @@ export const LimitContainer = () => {
             ] as Confirmation['fields'],
           })
 
-          make()
+          await make()
         } else {
           console.log(
             'limit order',
