@@ -4,6 +4,7 @@ import { toBookId } from '../utils/book-id'
 import { Book } from '../model/book'
 import { multiCall } from '../utils/multi-call'
 import { CONTRACT_ADDRESSES } from '../constants/contract-addresses'
+import { decodeI32 } from '../utils/number'
 
 import { fetchIsMarketOpened } from './market'
 
@@ -39,7 +40,7 @@ export const fetchBook = async (
     quote: quoteCurrency,
     unitSize,
     depths: Array.from({ length }, (_, i) => ({
-      tick: BigInt(depths[0][i * 2 + 1]),
+      tick: decodeI32(BigInt(depths[0][i * 2 + 1])),
       unitAmount: BigInt(depths[0][i * 2 + 2]),
     })),
     isOpened,
