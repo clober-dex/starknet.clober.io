@@ -10,6 +10,7 @@ import { fetchWhitelistCurrencies } from '../apis/currencies'
 import { isAddressEqual } from '../utils/address'
 import { multiCall } from '../utils/multi-call'
 import { CONTRACT_ADDRESSES } from '../constants/contract-addresses'
+import { decodeUint256 } from '../utils/bigint'
 
 import { useChainContext } from './chain-context'
 
@@ -76,7 +77,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return Object.fromEntries(
         results.map((result, index) => [
           uniqueCurrencies[index].address,
-          BigInt(result?.[0] ?? '0'),
+          decodeUint256(result),
         ]),
       ) as Balances
     },
@@ -142,12 +143,11 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
             const spender = getAddress(
               spenders[Math.floor(i / currencies.length)],
             )
-            const resultValue = BigInt(result?.[0] ?? '0')
             return {
               ...acc,
               [spender]: {
                 ...acc[spender],
-                [getAddress(currency.address)]: resultValue,
+                [getAddress(currency.address)]: decodeUint256(result),
               },
             }
           },

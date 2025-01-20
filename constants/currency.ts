@@ -15,11 +15,11 @@ export const WHITELISTED_CURRENCIES: {
     },
     {
       address:
-        '0x033566df80eb40d0183decd084e9f01ec4ff598889b695f6dc80699dae57b4f3',
-      name: 'Mock Token',
-      symbol: 'MOCK',
-      decimals: 18,
-      icon: '/starknet-logo.png',
+        '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1',
+      name: 'Mock USDC',
+      symbol: 'USDC',
+      decimals: 6,
+      icon: '/usd-coin-usdc-logo.png',
     },
   ],
 }
@@ -41,11 +41,11 @@ export const DEFAULT_OUTPUT_CURRENCY: {
 } = {
   [sepolia.network]: {
     address:
-      '0x033566df80eb40d0183decd084e9f01ec4ff598889b695f6dc80699dae57b4f3',
-    name: 'Mock Token',
-    symbol: 'MOCK',
-    decimals: 18,
-    icon: '/starknet-logo.png',
+      '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1',
+    name: 'Mock USDC',
+    symbol: 'USDC',
+    decimals: 6,
+    icon: '/usd-coin-usdc-logo.png',
   },
 }
 
@@ -62,7 +62,6 @@ export const STABLE_COIN_ADDRESSES: {
   [network: string]: `0x${string}`[]
 } = {
   [sepolia.network]: [
-    '0x0028729b12ce1140cbc1e7cbc7245455d3c15fa0c7f5d2e9fc8e0441567f6b50', // USDC
-    '0x3913d184e537671dfeca3f67015bb845f2d12a26e5ec56bdc495913b20acb08', // USDT
+    '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1', // USDC
   ],
 }

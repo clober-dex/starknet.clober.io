@@ -238,11 +238,6 @@ export const LimitContainer = () => {
         })
 
         const spender = CONTRACT_ADDRESSES[selectedChain.network].Controller
-        console.log(
-          'allowances',
-          allowances[spender][inputCurrency.address],
-          amount,
-        )
         if (allowances[spender][inputCurrency.address] < amount) {
           setConfirmation({
             title: 'Approve',

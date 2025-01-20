@@ -3,6 +3,7 @@ import { ETH_ADDRESS } from '../constants/currency'
 
 import { isAddressEqual } from './address'
 import { multiCall } from './multi-call'
+import { decodeUint256 } from './bigint'
 
 const buildCurrencyCacheKey = (chainNetwork: string, address: `0x${string}`) =>
   `${chainNetwork}:${address}`
@@ -39,9 +40,9 @@ const calculateUnitSizeInner = async (
     return 10n ** 12n
   }
   const results = await multiCall<string[]>(chainNetwork, [
-    { contractAddress: quote.address, entrypoint: 'totalSupply' },
+    { contractAddress: quote.address, entrypoint: 'total_supply' },
   ])
-  const totalSupply = results?.[0]?.[0] ? BigInt(results[0][0]) : 0n
+  const totalSupply = decodeUint256(results[0])
   return (
     10n **
     BigInt(totalSupply <= 2n ** 64n ? 0n : Math.max(quote.decimals - 6, 0))

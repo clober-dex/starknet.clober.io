@@ -38,6 +38,10 @@ export const formatUnits = (
   return +fixed === 0 ? formatted : fixed
 }
 
+export function decodeUint256(numbers: any[]): bigint {
+  return BigInt(numbers[0]) + 2n ** 128n * BigInt(numbers[1])
+}
+
 // @ts-ignore
 BigInt.prototype.toJSON = function () {
   return this.toString()
