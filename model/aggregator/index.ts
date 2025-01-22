@@ -1,12 +1,9 @@
-import { Chain } from '@starknet-react/chains'
-
 import { Currency } from '../currency'
 import { Prices } from '../prices'
 
 export interface Aggregator {
   baseUrl: string
   contract: `0x${string}`
-  chain: Chain
   currencies(): Promise<Currency[]>
   prices(): Promise<Prices>
 

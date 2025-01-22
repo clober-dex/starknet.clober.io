@@ -17,7 +17,7 @@ export const WHITELISTED_CURRENCIES: {
       address:
         '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1',
       name: 'Mock USDC',
-      symbol: 'USDC',
+      symbol: 'MUSDC',
       decimals: 6,
       icon: '/usd-coin-usdc-logo.png',
     },
@@ -43,7 +43,7 @@ export const DEFAULT_OUTPUT_CURRENCY: {
     address:
       '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1',
     name: 'Mock USDC',
-    symbol: 'USDC',
+    symbol: 'MUSDC',
     decimals: 6,
     icon: '/usd-coin-usdc-logo.png',
   },

@@ -151,15 +151,17 @@ export const LimitForm = ({
             <div className="text-gray-500 text-xs sm:text-sm">
               {isBid ? 'Buy' : 'Sell'} {selectedMarket?.base.symbol} at rate
             </div>
-            <button
-              disabled={setMarketRateAction.isLoading}
-              onClick={async () => {
-                await setMarketRateAction.action()
-              }}
-              className="flex ml-auto mr-[10px] sm:mr-[16px] text-center text-blue-500 text-xs sm:text-sm font-semibold disabled:opacity-50"
-            >
-              Set to market rate
-            </button>
+            {chainNetwork === 'mainnet' && (
+              <button
+                disabled={setMarketRateAction.isLoading}
+                onClick={async () => {
+                  await setMarketRateAction.action()
+                }}
+                className="flex ml-auto mr-[10px] sm:mr-[16px] text-center text-blue-500 text-xs sm:text-sm font-semibold disabled:opacity-50"
+              >
+                Set to market rate
+              </button>
+            )}
           </div>
           {setMarketRateAction.isLoading ? (
             <span className="w-[235px] sm:w-[340px] h-7 sm:h-8 rounded animate-pulse bg-gray-500" />
