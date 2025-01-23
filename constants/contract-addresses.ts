@@ -9,10 +9,10 @@ export const CONTRACT_ADDRESSES: {
 } = {
   [sepolia.network]: {
     Controller:
-      '0x044473a320e6d6616d19b068d6b3cfda6f78a446490b425d7b6112cab478d623',
+      '0x03f46d6d5adc927bbf98df941c6060c82c57e35ce052f662304a6b3b1e719cda',
     BookManager:
-      '0x02966d4772036c0c6e962407a7542cbb1ac970713d0758f322e00d8f86dea638',
+      '0x07743ac6334090bb75ffbf924cdff64ede7c9b8fc8ec81051f7c3a427da5f805',
     BookViewer:
-      '0x0439ae1fe35bb886886f958b006ec16ecbd2f22bb37a01613e84f270fe785dfa',
+      '0x0705444ec68b41814ec4529d671b3923d157bc28101776360a5bee100f3223de',
   },
 }

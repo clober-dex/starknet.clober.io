@@ -11,7 +11,7 @@ import { fetchApi } from '../apis/utils'
 
 import { isAddressEqual } from './address'
 import { multiCall } from './multi-call'
-import { hexToString } from './string'
+import { decodeString, hexToString } from './string'
 
 export const LOCAL_STORAGE_INPUT_CURRENCY_KEY = (
   context: string,
@@ -58,8 +58,8 @@ export const fetchCurrency = async (
   ])
   const currency = {
     address,
-    name: results[0]?.[0] ? hexToString(results[0][0]) : 'Unknown',
-    symbol: results[1]?.[0] ? hexToString(results[1][0]) : 'Unknown',
+    name: decodeString(results[0]),
+    symbol: decodeString(results[1]),
     decimals: Number(results[2]?.[0] ?? 18),
   }
   currencyCache[address] = [currency]

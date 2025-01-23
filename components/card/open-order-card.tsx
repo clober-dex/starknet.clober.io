@@ -17,7 +17,6 @@ export const OpenOrderCard = ({
 }) => {
   const filledRatio =
     (Number(openOrder.filled.value) / Number(openOrder.amount.value)) * 100
-  const txUrl = 'txUrl'
   return (
     <div
       className="flex flex-col shadow border border-solid border-gray-800 lg:w-[310px] gap-4 bg-gray-900 rounded-2xl p-4"
@@ -27,9 +26,6 @@ export const OpenOrderCard = ({
         <div className="font-bold flex flex-row items-center gap-1">
           {openOrder.inputCurrency.symbol} &#x2192;{'  '}
           {openOrder.outputCurrency.symbol}
-          <a target="_blank" href={txUrl} rel="noreferrer">
-            <OutlinkSvg className="w-3 h-3" />
-          </a>
         </div>
         <div
           className={`${

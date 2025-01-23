@@ -19,17 +19,11 @@ type OnChainOpenOrder = {
   }
 }
 export type OpenOrder = OnChainOpenOrder & {
-  txHash: `0x${string}`
-  createdAt: number
   amount: {
     currency: Currency
     value: string
   }
   filled: {
-    currency: Currency
-    value: string
-  }
-  claimed: {
     currency: Currency
     value: string
   }
