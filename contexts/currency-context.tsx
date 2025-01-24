@@ -11,6 +11,10 @@ import { isAddressEqual } from '../utils/address'
 import { multiCall } from '../utils/multi-call'
 import { CONTRACT_ADDRESSES } from '../constants/contract-addresses'
 import { decodeUint256 } from '../utils/bigint'
+import { AGGREGATORS } from '../constants/aggregators'
+import { fetchPrices } from '../apis/prices'
+import { testnetChainNetworks } from '../constants/chain'
+import { TESTNET_PRICES } from '../constants/testnet-price'
 
 import { useChainContext } from './chain-context'
 
@@ -90,7 +94,10 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: prices } = useQuery({
     queryKey: ['prices', selectedChain.network],
     queryFn: async () => {
-      return {} as Prices
+      if (testnetChainNetworks.includes(selectedChain.network)) {
+        return (TESTNET_PRICES[selectedChain.network] ?? 0) as Prices
+      }
+      return fetchPrices(AGGREGATORS[selectedChain.network])
     },
     refetchInterval: 10 * 1000,
     refetchIntervalInBackground: true,

@@ -1,6 +1,5 @@
 import React from 'react'
 
-import { OutlinkSvg } from '../svg/outlink-svg'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { toPlacesString } from '../../utils/bignumber'
 import { OpenOrder } from '../../model/open-order'

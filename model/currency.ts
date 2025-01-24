@@ -7,6 +7,12 @@ export type Currency = {
   isVerified?: boolean
 }
 
+export type CurrencyFlow = {
+  currency: Currency
+  amount: string
+  direction: 'in' | 'out'
+}
+
 export function getLogo(currency?: Currency): string {
   if (!currency) {
     return ''

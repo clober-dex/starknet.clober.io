@@ -18,7 +18,6 @@ import { textStyles } from '../themes/text-styles'
 import { useOpenOrderContext } from '../contexts/limit/open-order-context'
 import { useLimitContext } from '../contexts/limit/limit-context'
 import { ActionButton } from '../components/button/action-button'
-import { OpenOrderCard } from '../components/card/open-order-card'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { isAddressEqual, isAddressesEqual } from '../utils/address'
 import { fetchQuotes } from '../apis/swap/quotes'
@@ -33,14 +32,16 @@ import {
   Confirmation,
   useTransactionContext,
 } from '../contexts/transaction-context'
-import { Currency } from '../model/currency'
+import { Currency, CurrencyFlow } from '../model/currency'
 import { fetchMarket } from '../apis/market'
 import { parsePrice } from '../utils/prices'
 import { invertTick, toPrice } from '../utils/tick'
 import { ERC20_ABI } from '../abis/erc20-abi'
 import { encodeNumber } from '../utils/number'
+import { ERC721_ABI } from '../abis/erc721-abi'
 
 import { ChartContainer } from './chart-container'
+import OpenOrderCardContainer from './open-order-card-container'
 
 export const LimitContainer = () => {
   const { selectedChain } = useChainContext()
@@ -77,8 +78,14 @@ export const LimitContainer = () => {
     setPriceInput,
   } = useLimitContext()
   const { setConfirmation } = useTransactionContext()
-  const { balances, prices, currencies, setCurrencies, allowances } =
-    useCurrencyContext()
+  const {
+    balances,
+    prices,
+    currencies,
+    setCurrencies,
+    allowances,
+    isOpenOrderApproved,
+  } = useCurrencyContext()
   const [showOrderBook, setShowOrderBook] = useState(true)
   const [isFetchingQuotes, setIsFetchingQuotes] = useState(false)
 
@@ -136,6 +143,11 @@ export const LimitContainer = () => {
     address: inputCurrency ? inputCurrency.address : undefined,
   })
 
+  const { contract: erc721 } = useContract({
+    abi: ERC721_ABI,
+    address: CONTRACT_ADDRESSES[selectedChain.network]!.BookManager,
+  })
+
   const { sendAsync: open } = useSendTransaction({
     calls:
       controller && outputCurrency && inputCurrency && selectedMarket
@@ -184,7 +196,7 @@ export const LimitContainer = () => {
         : undefined,
   })
 
-  const { sendAsync: limitOrder } = useSendTransaction({
+  const { sendAsync: limit } = useSendTransaction({
     calls:
       controller && selectedMarket && priceInput.length > 0
         ? [
@@ -202,6 +214,22 @@ export const LimitContainer = () => {
         : undefined,
   })
 
+  const { sendAsync: claim } = useSendTransaction({
+    calls: controller
+      ? claimableOpenOrders.map((openOrder) =>
+          controller.populate('claim', [openOrder.id, ['0'], 9999999999]),
+        )
+      : undefined,
+  })
+
+  const { sendAsync: cancel } = useSendTransaction({
+    calls: controller
+      ? cancellableOpenOrders.map((openOrder) =>
+          controller.populate('cancel', [openOrder.id, 0n, ['0'], 9999999999]),
+        )
+      : undefined,
+  })
+
   const { sendAsync: maxApprove } = useSendTransaction({
     calls: erc20
       ? [
@@ -213,7 +241,18 @@ export const LimitContainer = () => {
       : undefined,
   })
 
-  const limit = useCallback(
+  const { sendAsync: setApprovalOfOpenOrdersForAll } = useSendTransaction({
+    calls: erc721
+      ? [
+          erc721.populate('set_approval_for_all', [
+            CONTRACT_ADDRESSES[selectedChain.network].Controller as string,
+            true,
+          ]),
+        ]
+      : undefined,
+  })
+
+  const limitOrder = useCallback(
     async (
       inputCurrency: Currency,
       outputCurrency: Currency,
@@ -255,8 +294,10 @@ export const LimitContainer = () => {
           fields: [],
         })
 
-        const spender = CONTRACT_ADDRESSES[selectedChain.network].Controller
-        if (allowances[spender][inputCurrency.address] < amount) {
+        const spender = getAddress(
+          CONTRACT_ADDRESSES[selectedChain.network].Controller,
+        )
+        if (allowances[spender][getAddress(inputCurrency.address)] < amount) {
           setConfirmation({
             title: 'Approve',
             body: 'Please confirm in your wallet.',
@@ -266,16 +307,15 @@ export const LimitContainer = () => {
         }
 
         const isTakingBidSide = !isBid
-        const { takenQuoteAmount, spentBaseAmount, bookId, events } =
-          market.spend({
-            spentBase: isTakingBidSide,
-            limitTick: parsePrice(
-              Number(price),
-              market.quote.decimals,
-              market.base.decimals,
-            ).roundingDownTick,
-            amountIn: amount,
-          })
+        const { takenQuoteAmount, spentBaseAmount } = market.spend({
+          spentBase: isTakingBidSide,
+          limitTick: parsePrice(
+            Number(price),
+            market.quote.decimals,
+            market.base.decimals,
+          ).roundingDownTick,
+          amountIn: amount,
+        })
 
         if (postOnly || spentBaseAmount === 0n) {
           setConfirmation({
@@ -288,7 +328,7 @@ export const LimitContainer = () => {
                 label: inputCurrency.symbol,
                 value: toPlacesAmountString(
                   inputCurrencyAmount,
-                  prices[inputCurrency.address] ?? 0,
+                  prices[getAddress(inputCurrency.address)] ?? 0,
                 ),
               },
             ] as Confirmation['fields'],
@@ -306,7 +346,7 @@ export const LimitContainer = () => {
                 label: inputCurrency.symbol,
                 value: toPlacesAmountString(
                   inputCurrencyAmount,
-                  prices[inputCurrency.address] ?? 0,
+                  prices[getAddress(inputCurrency.address)] ?? 0,
                 ),
               },
               {
@@ -315,13 +355,13 @@ export const LimitContainer = () => {
                 label: outputCurrency.symbol,
                 value: toPlacesAmountString(
                   formatUnits(takenQuoteAmount, outputCurrency.decimals),
-                  prices[outputCurrency.address] ?? 0,
+                  prices[getAddress(outputCurrency.address)] ?? 0,
                 ),
               },
             ] as Confirmation['fields'],
           })
 
-          await limitOrder()
+          await limit()
         }
       } catch (e) {
         console.error(e)
@@ -340,17 +380,130 @@ export const LimitContainer = () => {
     [
       allowances,
       inputCurrencyAmount,
+      limit,
       make,
       maxApprove,
       open,
       prices,
       queryClient,
       selectedChain.network,
-      selectedMarket?.askBook.id,
-      selectedMarket?.bidBook.id,
       setConfirmation,
     ],
   )
+
+  const claims = useCallback(async () => {
+    try {
+      setConfirmation({
+        title: `Claim Order`,
+        body: 'Please confirm in your wallet.',
+        fields: claimableOpenOrders
+          .reduce((acc, { claimable: { currency, value } }) => {
+            const index = acc.findIndex((c) =>
+              isAddressEqual(c.currency.address, currency.address),
+            )
+            if (index === -1) {
+              return [
+                ...acc,
+                { currency, amount: value, direction: 'out' },
+              ] as CurrencyFlow[]
+            }
+            acc[index].amount = (
+              Number(acc[index].amount) + Number(value)
+            ).toString()
+            return acc
+          }, [] as CurrencyFlow[])
+          .map(({ currency, amount, direction }) => ({
+            currency,
+            label: currency.symbol,
+            value: toPlacesAmountString(
+              amount,
+              prices[getAddress(currency.address)] ?? 0,
+            ),
+            direction,
+          })),
+      })
+
+      if (!isOpenOrderApproved) {
+        await setApprovalOfOpenOrdersForAll()
+      }
+      await claim()
+    } catch (e) {
+      console.error(e)
+    } finally {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['balances'] }),
+        queryClient.invalidateQueries({ queryKey: ['open-orders'] }),
+        queryClient.invalidateQueries({ queryKey: ['market'] }),
+        queryClient.invalidateQueries({ queryKey: ['allowances'] }),
+      ])
+      setConfirmation(undefined)
+    }
+  }, [
+    claim,
+    claimableOpenOrders,
+    isOpenOrderApproved,
+    prices,
+    queryClient,
+    setApprovalOfOpenOrdersForAll,
+    setConfirmation,
+  ])
+
+  const cancels = useCallback(async () => {
+    try {
+      setConfirmation({
+        title: `Cancel Order`,
+        body: 'Please confirm in your wallet.',
+        fields: cancellableOpenOrders
+          .reduce((acc, { cancelable: { currency, value } }) => {
+            const index = acc.findIndex((c) =>
+              isAddressEqual(c.currency.address, currency.address),
+            )
+            if (index === -1) {
+              return [
+                ...acc,
+                { currency, amount: value, direction: 'out' },
+              ] as CurrencyFlow[]
+            }
+            acc[index].amount = (
+              Number(acc[index].amount) + Number(value)
+            ).toString()
+            return acc
+          }, [] as CurrencyFlow[])
+          .map(({ currency, amount, direction }) => ({
+            currency,
+            label: currency.symbol,
+            value: toPlacesAmountString(
+              amount,
+              prices[getAddress(currency.address)] ?? 0,
+            ),
+            direction,
+          })),
+      })
+
+      if (!isOpenOrderApproved) {
+        await setApprovalOfOpenOrdersForAll()
+      }
+      await cancel()
+    } catch (e) {
+      console.error(e)
+    } finally {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['balances'] }),
+        queryClient.invalidateQueries({ queryKey: ['open-orders'] }),
+        queryClient.invalidateQueries({ queryKey: ['market'] }),
+        queryClient.invalidateQueries({ queryKey: ['allowances'] }),
+      ])
+      setConfirmation(undefined)
+    }
+  }, [
+    cancel,
+    cancellableOpenOrders,
+    isOpenOrderApproved,
+    prices,
+    queryClient,
+    setApprovalOfOpenOrdersForAll,
+    setConfirmation,
+  ])
 
   return (
     <div className="flex flex-col w-fit mb-4 sm:mb-6">
@@ -503,7 +656,7 @@ export const LimitContainer = () => {
                 0n,
               onClick: async () => {
                 if (inputCurrency && outputCurrency && selectedMarket) {
-                  await limit(
+                  await limitOrder(
                     inputCurrency,
                     outputCurrency,
                     amount,
@@ -542,7 +695,7 @@ export const LimitContainer = () => {
               className="w-[64px] sm:w-[120px] flex flex-1 items-center justify-center rounded bg-gray-700 hover:bg-blue-600 text-white text-[10px] sm:text-sm disabled:bg-gray-800 disabled:text-gray-500 h-6 sm:h-7"
               disabled={claimableOpenOrders.length === 0}
               onClick={async () => {
-                // await claims(claimableOpenOrders)
+                await claims()
               }}
               text={`Claim (${claimableOpenOrders.length})`}
             />
@@ -550,7 +703,7 @@ export const LimitContainer = () => {
               className="w-[64px] sm:w-[120px] flex flex-1 items-center justify-center rounded bg-gray-700 hover:bg-blue-600 text-white text-[10px] sm:text-sm disabled:bg-gray-800 disabled:text-gray-500 h-6 sm:h-7"
               disabled={cancellableOpenOrders.length === 0}
               onClick={async () => {
-                // await cancels(cancellableOpenOrders)
+                await cancels()
               }}
               text={`Cancel (${cancellableOpenOrders.length})`}
             />
@@ -562,27 +715,11 @@ export const LimitContainer = () => {
       <div className="flex w-full justify-center mt-0 sm:mt-4">
         <div className="flex flex-col w-full lg:w-auto h-full lg:grid lg:grid-cols-3 gap-4 sm:gap-6">
           {openOrders.map((openOrder, index) => (
-            <OpenOrderCard
+            <OpenOrderCardContainer
+              selectedChain={selectedChain}
               openOrder={openOrder}
               key={index}
-              claimActionButtonProps={{
-                disabled:
-                  parseUnits(
-                    openOrder.claimable.value,
-                    openOrder.claimable.currency.decimals,
-                  ) === 0n,
-                onClick: async () => {
-                  // await claims([openOrder])
-                },
-                text: 'Claim',
-              }}
-              cancelActionButtonProps={{
-                disabled: !openOrder.cancelable,
-                onClick: async () => {
-                  // await cancels([openOrder])
-                },
-                text: 'Cancel',
-              }}
+              setApprovalOfOpenOrdersForAll={setApprovalOfOpenOrdersForAll}
             />
           ))}
         </div>
