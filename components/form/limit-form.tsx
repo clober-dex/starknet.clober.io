@@ -12,7 +12,11 @@ import { Balances } from '../../model/balances'
 import { Prices } from '../../model/prices'
 import CheckIcon from '../icon/check-icon'
 import { toPlacesString } from '../../utils/bignumber'
-import { getPriceDecimals } from '../../utils/prices'
+import {
+  getMarketPrice,
+  getPriceDecimals,
+  getPriceNeighborhood,
+} from '../../utils/prices'
 import { Market } from '../../model/market'
 import { isAddressEqual } from '../../utils/address'
 
@@ -186,26 +190,24 @@ export const LimitForm = ({
                   setPriceInput('')
                   return
                 }
-                // TODO
-                // const {
-                //   normal: {
-                //     now: { tick },
-                //   },
-                // } = getPriceNeighborhood({
-                //   chainNetwork: chainId,
-                //   price: priceInput,
-                //   currency0: inputCurrency,
-                //   currency1: outputCurrency,
-                // })
-                let currentTick = 0n
+                const {
+                  normal: {
+                    now: { tick },
+                  },
+                } = getPriceNeighborhood({
+                  chainNetwork,
+                  price: priceInput,
+                  currency0: inputCurrency,
+                  currency1: outputCurrency,
+                })
+                let currentTick = tick
                 // eslint-disable-next-line no-constant-condition
                 while (true) {
-                  // const price = getMarketPrice({
-                  //   marketQuoteCurrency: selectedMarket.quote,
-                  //   marketBaseCurrency: selectedMarket.base,
-                  //   bidTick: currentTick,
-                  // })
-                  const price = 0.0001
+                  const price = getMarketPrice({
+                    marketQuoteCurrency: selectedMarket.quote,
+                    marketBaseCurrency: selectedMarket.base,
+                    bidTick: currentTick,
+                  })
                   const nextPrice = toPlacesString(
                     price,
                     minimumDecimalPlaces,
@@ -251,26 +253,24 @@ export const LimitForm = ({
                   setPriceInput('')
                   return
                 }
-                // TOOD
-                // const {
-                //   normal: {
-                //     now: { tick },
-                //   },
-                // } = getPriceNeighborhood({
-                //   chainNetwork: chainId,
-                //   price: priceInput,
-                //   currency0: inputCurrency,
-                //   currency1: outputCurrency,
-                // })
-                let currentTick = 0n
+                const {
+                  normal: {
+                    now: { tick },
+                  },
+                } = getPriceNeighborhood({
+                  chainNetwork,
+                  price: priceInput,
+                  currency0: inputCurrency,
+                  currency1: outputCurrency,
+                })
+                let currentTick = tick
                 // eslint-disable-next-line no-constant-condition
                 while (true) {
-                  // const price = getMarketPrice({
-                  //   marketQuoteCurrency: selectedMarket.quote,
-                  //   marketBaseCurrency: selectedMarket.base,
-                  //   bidTick: currentTick,
-                  // })
-                  const price = 0.0001
+                  const price = getMarketPrice({
+                    marketQuoteCurrency: selectedMarket.quote,
+                    marketBaseCurrency: selectedMarket.base,
+                    bidTick: currentTick,
+                  })
                   const nextPrice = toPlacesString(
                     price,
                     minimumDecimalPlaces,

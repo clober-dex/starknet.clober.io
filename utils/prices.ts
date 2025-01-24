@@ -6,6 +6,8 @@ import { Currency } from '../model/currency'
 import { fromPrice, invertTick, toPrice } from './tick'
 import { max, min } from './bigint'
 import { findFirstNonZeroIndex } from './bignumber'
+import { getQuoteToken } from './token'
+import { isAddressEqual } from './address'
 
 BigNumber.config({
   DECIMAL_PLACES: 100,
@@ -100,5 +102,172 @@ export const getMarketPrice = ({
     )
   } else {
     throw new Error('Either bidTick or askTick must be provided')
+  }
+}
+
+export const getPriceNeighborhood = ({
+  chainNetwork,
+  price,
+  currency0,
+  currency1,
+}: {
+  chainNetwork: string
+  price: string
+  currency0: Currency
+  currency1: Currency
+}) => {
+  const quoteTokenAddress = getQuoteToken({
+    chainNetwork,
+    token0: currency0.address,
+    token1: currency1.address,
+  })
+  const quoteCurrency = isAddressEqual(quoteTokenAddress, currency0.address)
+    ? currency0
+    : currency1
+  const baseCurrency = isAddressEqual(quoteTokenAddress, currency0.address)
+    ? currency1
+    : currency0
+  const { roundingDownTick, roundingUpTick } = parsePrice(
+    Number(price),
+    quoteCurrency.decimals,
+    baseCurrency.decimals,
+  )
+  const bidBookTick = roundingDownTick
+  const askBookTick = invertTick(roundingUpTick)
+  return {
+    normal: {
+      nextUp: {
+        tick: bidBookTick + 2n,
+        price: formatPrice(
+          toPrice(bidBookTick + 2n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(bidBookTick + 2n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      up: {
+        tick: bidBookTick + 1n,
+        price: formatPrice(
+          toPrice(bidBookTick + 1n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(bidBookTick + 1n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      now: {
+        tick: bidBookTick,
+        price: formatPrice(
+          toPrice(bidBookTick),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(bidBookTick),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      down: {
+        tick: bidBookTick - 1n,
+        price: formatPrice(
+          toPrice(bidBookTick - 1n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(bidBookTick - 1n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      nextDown: {
+        tick: bidBookTick - 2n,
+        price: formatPrice(
+          toPrice(bidBookTick - 2n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(bidBookTick - 2n),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+    },
+    inverted: {
+      nextUp: {
+        tick: askBookTick + 2n,
+        price: formatPrice(
+          toPrice(askBookTick + 2n),
+          baseCurrency.decimals,
+          quoteCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(invertTick(askBookTick + 2n)),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      up: {
+        tick: askBookTick + 1n,
+        price: formatPrice(
+          toPrice(askBookTick + 1n),
+          baseCurrency.decimals,
+          quoteCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(invertTick(askBookTick + 1n)),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      now: {
+        tick: askBookTick,
+        price: formatPrice(
+          toPrice(askBookTick),
+          baseCurrency.decimals,
+          quoteCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(invertTick(askBookTick)),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      down: {
+        tick: askBookTick - 1n,
+        price: formatPrice(
+          toPrice(askBookTick - 1n),
+          baseCurrency.decimals,
+          quoteCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(invertTick(askBookTick - 1n)),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+      nextDown: {
+        tick: askBookTick - 2n,
+        price: formatPrice(
+          toPrice(askBookTick - 2n),
+          baseCurrency.decimals,
+          quoteCurrency.decimals,
+        ),
+        marketPrice: formatPrice(
+          toPrice(invertTick(askBookTick - 2n)),
+          quoteCurrency.decimals,
+          baseCurrency.decimals,
+        ),
+      },
+    },
   }
 }

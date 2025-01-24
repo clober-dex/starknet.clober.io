@@ -17,7 +17,7 @@ export const CurrencyIcon = ({
   return (
     <img
       className="rounded-full"
-      src={getLogo(currency)}
+      src={currency && currency.icon ? currency.icon : getLogo(currency)}
       onError={(e) => {
         if (tryCount >= 1) {
           e.currentTarget.src = '/unknown.svg'
