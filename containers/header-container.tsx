@@ -28,17 +28,6 @@ const HeaderContainer = ({ onMenuClick }: { onMenuClick: () => void }) => {
         >
           <img className="h-5 md:h-7" src="/logo.svg" alt="logo" />
         </Link>
-        <div className="hidden lg:flex items-center gap-8">
-          <button
-            disabled={
-              router.pathname === '/limit' || router.pathname === '/swap'
-            }
-            onClick={() => router.push(`/limit?chain=${selectedChain.network}`)}
-            className="text-sm text-gray-500 font-semibold disabled:text-white"
-          >
-            Trade
-          </button>
-        </div>
       </div>
       <div className="flex gap-2 w-auto md:gap-4 ml-auto">
         <div className="hidden lg:flex items-center justify-center mr-2 gap-4">
