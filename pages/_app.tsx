@@ -88,8 +88,8 @@ const MainComponentWrapper = ({ children }: React.PropsWithChildren) => {
             Limit
           </button>
           <button
-            className="flex font-bold items-center justify-center text-base sm:text-2xl w-16 sm:w-[120px] bg-transparent text-gray-500 disabled:text-white border-0 rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-white"
-            disabled={false}
+            className="flex font-bold items-center justify-center text-base sm:text-2xl w-16 sm:w-[120px] bg-transparent text-gray-500 border-0 rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent"
+            disabled={true}
           >
             Swap
           </button>
