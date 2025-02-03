@@ -2,18 +2,13 @@ import React, { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { NextRouter } from 'next/router'
 
 const Panel = ({
-  chainNetwork,
   open,
   setOpen,
-  router,
 }: {
-  chainNetwork: string
   open: boolean
   setOpen: (open: boolean) => void
-  router: NextRouter
 } & React.PropsWithChildren) => {
   return (
     <Transition.Root show={open} as={Fragment}>

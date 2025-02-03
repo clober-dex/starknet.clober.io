@@ -58,16 +58,8 @@ const PanelWrapper = ({
   open: boolean
   setOpen: (open: boolean) => void
 } & React.PropsWithChildren) => {
-  const router = useRouter()
-  const { selectedChain } = useChainContext()
-
   return (
-    <Panel
-      chainNetwork={selectedChain.network}
-      open={open}
-      setOpen={setOpen}
-      router={router}
-    >
+    <Panel open={open} setOpen={setOpen}>
       {children}
     </Panel>
   )
