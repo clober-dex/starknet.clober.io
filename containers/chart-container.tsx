@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
-import { sepolia } from '@starknet-react/chains'
+import { mainnet } from '@starknet-react/chains'
 
 import { Market } from '../model/market'
 
@@ -30,7 +30,7 @@ export const ChartContainer = ({
       />
       {isScriptReady ? (
         <TVChartContainer
-          chainNetwork={sepolia.network}
+          chainNetwork={mainnet.network}
           market={selectedMarket}
           setShowOrderBook={setShowOrderBook}
         />

@@ -1,11 +1,11 @@
-import { sepolia } from '@starknet-react/chains'
+import { mainnet } from '@starknet-react/chains'
 
 import { Currency } from '../model/currency'
 
 export const WHITELISTED_CURRENCIES: {
   [chain in string]: Currency[]
 } = {
-  [sepolia.network]: [
+  [mainnet.network]: [
     {
       address:
         '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
@@ -15,11 +15,27 @@ export const WHITELISTED_CURRENCIES: {
     },
     {
       address:
-        '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1',
-      name: 'Mock USDC',
-      symbol: 'MUSDC',
+        '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8',
+      name: 'USDC',
+      symbol: 'USDC',
       decimals: 6,
       icon: '/usd-coin-usdc-logo.png',
+    },
+    {
+      address:
+        '0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8',
+      name: 'USDT',
+      symbol: 'USDT',
+      decimals: 6,
+      icon: '/tether-usdt-logo.png',
+    },
+    {
+      address:
+        '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d',
+      name: 'Starknet Token',
+      symbol: 'STRK',
+      decimals: 18,
+      icon: '/starknet-logo.png',
     },
   ],
 }
@@ -27,7 +43,7 @@ export const WHITELISTED_CURRENCIES: {
 export const DEFAULT_INPUT_CURRENCY: {
   [network: string]: Currency
 } = {
-  [sepolia.network]: {
+  [mainnet.network]: {
     address:
       '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
     name: 'Ethereum',
@@ -39,11 +55,11 @@ export const DEFAULT_INPUT_CURRENCY: {
 export const DEFAULT_OUTPUT_CURRENCY: {
   [network: string]: Currency
 } = {
-  [sepolia.network]: {
+  [mainnet.network]: {
     address:
-      '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1',
-    name: 'Mock USDC',
-    symbol: 'MUSDC',
+      '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8',
+    name: 'USDC',
+    symbol: 'USDC',
     decimals: 6,
     icon: '/usd-coin-usdc-logo.png',
   },
@@ -52,7 +68,7 @@ export const DEFAULT_OUTPUT_CURRENCY: {
 export const ETH_ADDRESS: {
   [network: string]: `0x${string}`
 } = {
-  [sepolia.network]:
+  [mainnet.network]:
     '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
 }
 
@@ -61,7 +77,8 @@ export const ETH_ADDRESS: {
 export const STABLE_COIN_ADDRESSES: {
   [network: string]: `0x${string}`[]
 } = {
-  [sepolia.network]: [
-    '0x0294ac7d3d0197d637a408eaeb43a8902fa761206aa5d17cdca0ba0e062bf1f1', // USDC
+  [mainnet.network]: [
+    '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8', // USDC
+    '0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8', // USDT
   ],
 }

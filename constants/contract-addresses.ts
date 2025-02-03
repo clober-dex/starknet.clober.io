@@ -1,4 +1,4 @@
-import { sepolia } from '@starknet-react/chains'
+import { mainnet } from '@starknet-react/chains'
 
 export const CONTRACT_ADDRESSES: {
   [network: string]: {
@@ -7,12 +7,12 @@ export const CONTRACT_ADDRESSES: {
     BookViewer: `0x${string}`
   }
 } = {
-  [sepolia.network]: {
+  [mainnet.network]: {
     Controller:
-      '0x03f46d6d5adc927bbf98df941c6060c82c57e35ce052f662304a6b3b1e719cda',
+      '0x06306dd0bdf85698b982dbe05904f831c79e3479ebbd7bf16cae17c9c24da5ea',
     BookManager:
-      '0x07743ac6334090bb75ffbf924cdff64ede7c9b8fc8ec81051f7c3a427da5f805',
+      '0x04c67309350e5fd9344b9d00c5fabc8ef9133dbed348bc87620ac5f05101159d',
     BookViewer:
-      '0x0705444ec68b41814ec4529d671b3923d157bc28101776360a5bee100f3223de',
+      '0x03d6f245d110e10d92f89487dafb13cd09580ec79e51014f286bb35e0fb29543',
   },
 }

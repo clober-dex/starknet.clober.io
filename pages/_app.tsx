@@ -4,7 +4,7 @@ import Head from 'next/head'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import { sepolia } from '@starknet-react/chains'
+import { mainnet } from '@starknet-react/chains'
 import {
   argent,
   braavos,
@@ -24,7 +24,7 @@ import ErrorBoundary from '../components/error-boundary'
 import { CurrencyProvider } from '../contexts/currency-context'
 
 const WalletProvider = ({ children }: React.PropsWithChildren) => {
-  const chains = [sepolia]
+  const chains = [mainnet]
   const provider = publicProvider()
   const connectors = [braavos(), argent()]
 

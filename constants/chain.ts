@@ -1,10 +1,10 @@
-import { Chain, sepolia } from '@starknet-react/chains'
+import { Chain, mainnet } from '@starknet-react/chains'
 
-export const DEFAULT_CHAIN_NETWORK = sepolia.network
+export const DEFAULT_CHAIN_NETWORK = mainnet.network
 
-export const supportChains: Chain[] = [sepolia]
+export const supportChains: Chain[] = [mainnet]
 
-export const testnetChainNetworks: string[] = [sepolia.network]
+export const testnetChainNetworks: string[] = [mainnet.network]
 
 export const findSupportChain = (chainNetwork: string): Chain | undefined =>
   supportChains.find((chain) => chain.network === chainNetwork)
