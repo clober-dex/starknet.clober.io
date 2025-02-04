@@ -94,7 +94,7 @@ const MainComponentWrapper = ({ children }: React.PropsWithChildren) => {
 }
 
 const FooterWrapper = () => {
-  return <Footer latestSubgraphBlockNumber={0} />
+  return <Footer />
 }
 
 function App({ Component, pageProps }: AppProps) {
