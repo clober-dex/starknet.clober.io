@@ -1,20 +1,19 @@
 import React from 'react'
 import { Chain } from '@starknet-react/chains'
+import Link from 'next/link'
+import Image from 'next/image'
 
 import { textStyles } from '../../themes/text-styles'
 import useDropdown from '../../hooks/useDropdown'
 import ChainIcon from '../icon/chain-icon'
 import { TriangleDownSvg } from '../svg/triangle-down-svg'
-import { CheckSvg } from '../svg/check-svg'
 import { testnetChainNetworks } from '../../constants/chain'
 
 export default function ChainSelector({
   chain,
-  setChain,
   chains,
 }: {
   chain: Chain
-  setChain: (chain: Chain) => void
   chains: Chain[]
 }) {
   const { showDropdown, setShowDropdown } = useDropdown()
@@ -44,9 +43,6 @@ export default function ChainSelector({
         <ChainsDropDown
           mainnetChains={mainnetChains}
           testnetChains={testnetChains}
-          chain={chain}
-          setChain={setChain}
-          setShowDropdown={setShowDropdown}
         />
       ) : (
         <></>
@@ -60,15 +56,9 @@ export default function ChainSelector({
 function ChainsDropDown({
   mainnetChains,
   testnetChains,
-  chain,
-  setChain,
-  setShowDropdown,
 }: {
   mainnetChains: Chain[]
   testnetChains: Chain[]
-  chain: Chain
-  setChain: (chain: Chain) => void
-  setShowDropdown: (showDropdown: boolean) => void
 }) {
   if (mainnetChains.length === 0 && testnetChains.length === 0) {
     return <></>
@@ -76,68 +66,49 @@ function ChainsDropDown({
 
   return (
     <div className="absolute right-1 md:right-[-5rem] top-10 md:top-12 z-[1500] flex flex-col w-48 bg-gray-800 border border-solid border-gray-700 rounded-xl py-3 items-start gap-4 shadow-[4px_4px_12px_12px_rgba(0,0,0,0.15)]">
-      {testnetChains.length === 0 ? (
+      <>
         <ChainList
           title={'Mainnet'}
-          chain={chain}
-          setChain={setChain}
-          chains={mainnetChains}
-          setShowDropdown={setShowDropdown}
+          chains={[
+            { name: 'Base', icon: 'https://assets.odos.xyz/chains/base.png' },
+            {
+              name: 'zkSync Era',
+              icon: 'https://assets.odos.xyz/chains/zksync.png',
+            },
+          ]}
         />
-      ) : mainnetChains.length === 0 ? (
+        <div className="h-0 self-stretch stroke-[1px] stroke-gray-700">
+          <svg>
+            <line
+              x1="0"
+              y1="0"
+              x2="158"
+              y2="0"
+              stroke="#374151"
+              strokeWidth={1}
+            />
+          </svg>
+        </div>
         <ChainList
           title={'Testnet'}
-          chain={chain}
-          setChain={setChain}
-          chains={testnetChains}
-          setShowDropdown={setShowDropdown}
+          chains={[
+            {
+              name: 'Mitosis Testnet',
+              icon: 'https://testnet.mitosis.org/assets/nav/logo.png',
+            },
+          ]}
         />
-      ) : (
-        <>
-          <ChainList
-            title={'Mainnet'}
-            chain={chain}
-            setChain={setChain}
-            chains={mainnetChains}
-            setShowDropdown={setShowDropdown}
-          />
-          <div className="h-0 self-stretch stroke-[1px] stroke-gray-700">
-            <svg>
-              <line
-                x1="0"
-                y1="0"
-                x2="158"
-                y2="0"
-                stroke="#374151"
-                strokeWidth={1}
-              />
-            </svg>
-          </div>
-          <ChainList
-            title={'Testnet'}
-            chain={chain}
-            setChain={setChain}
-            chains={testnetChains}
-            setShowDropdown={setShowDropdown}
-          />
-        </>
-      )}
+      </>
     </div>
   )
 }
 
 function ChainList({
   title,
-  chain,
-  setChain,
   chains,
-  setShowDropdown,
 }: {
   title: string
-  chain: Chain
-  setChain: (chain: Chain) => void
-  chains: Chain[]
-  setShowDropdown: (showDropdown: boolean) => void
+  chains: { name: string; icon: string }[]
 }) {
   return (
     <div className="flex flex-col items-start gap-1 self-stretch rounded-none">
@@ -146,33 +117,20 @@ function ChainList({
       >
         {title}
       </div>
-      <div className="flex flex-col items-start self-stretch rounded-none">
-        <div className="flex flex-col items-start self-stretch rounded-none">
-          {chains
-            .sort((a, b) => Number(a.id) - Number(b.id))
-            .map((_chain) => (
-              <div
-                className={`flex items-center gap-2 px-3 py-2 self-stretch cursor-pointer text-white ${textStyles.body3Bold} hover:bg-gray-600`}
-                key={_chain.network}
-                onClick={() => {
-                  try {
-                    setChain(_chain)
-                  } catch (e) {
-                    console.error(e)
-                  } finally {
-                    setShowDropdown(false)
-                  }
-                }}
-              >
-                <ChainIcon />
-                <span>{_chain.name}</span>
-                {_chain.network === chain.network ? (
-                  <CheckSvg className="ml-auto" />
-                ) : (
-                  <></>
-                )}
-              </div>
-            ))}
+      <div className="flex flex-col items-center justify-center self-stretch rounded-none">
+        <div className="flex flex-col items-center justify-center self-stretch rounded-none">
+          {chains.map((_chain) => (
+            <Link
+              target="_blank"
+              href="https://app.clober.io"
+              rel="noreferrer"
+              className={`flex items-center gap-2 px-3 py-2 self-stretch cursor-pointer text-white ${textStyles.body3Bold} hover:bg-gray-600`}
+              key={_chain.name}
+            >
+              <Image src={_chain.icon} alt="ChainIcon" width={16} height={16} />
+              <span>{_chain.name}</span>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

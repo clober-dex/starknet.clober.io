@@ -1,6 +1,5 @@
 import React from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { useAccount } from '@starknet-react/core'
 
 import { useChainContext } from '../contexts/chain-context'
@@ -13,8 +12,7 @@ import { TwitterLogoSvg } from '../components/svg/twitter-logo-svg'
 import MenuSvg from '../components/svg/menu-svg'
 
 const HeaderContainer = ({ onMenuClick }: { onMenuClick: () => void }) => {
-  const router = useRouter()
-  const { selectedChain, setSelectedChain } = useChainContext()
+  const { selectedChain } = useChainContext()
   const { address, status } = useAccount()
 
   return (
@@ -56,11 +54,7 @@ const HeaderContainer = ({ onMenuClick }: { onMenuClick: () => void }) => {
             <TwitterLogoSvg className="w-5 h-5" />
           </Link>
         </div>
-        <ChainSelector
-          chain={selectedChain}
-          setChain={setSelectedChain}
-          chains={supportChains}
-        />
+        <ChainSelector chain={selectedChain} chains={supportChains} />
         <WalletSelector address={address} status={status} />
         <button
           className="w-8 h-8 lg:hover:bg-gray-200 hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden"

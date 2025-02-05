@@ -13,6 +13,7 @@ const nextConfig = {
   },
   images: {
     domains: [
+      'testnet.mitosis.org',
       'assets.odos.xyz',
       'img.cryptorank.io',
       'dd.dexscreener.com',
