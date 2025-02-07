@@ -247,7 +247,8 @@ export const LimitForm = ({
                 selectedMarket &&
                 inputCurrency &&
                 outputCurrency &&
-                !new BigNumber(priceInput).isNaN()
+                !new BigNumber(priceInput).isNaN() &&
+                !new BigNumber(priceInput).isZero()
               ) {
                 if (new BigNumber(priceInput).gte(maximumPrice)) {
                   setPriceInput('')
