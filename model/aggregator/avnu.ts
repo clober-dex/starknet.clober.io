@@ -78,49 +78,24 @@ export class AvnuAggregator implements Aggregator {
       outputCurrency.symbol,
       amountIn,
     )
-    // const result: {
-    //   outAmounts: string[]
-    //   pathViz: PathViz
-    //   pathId: string
-    //   gasEstimate: number
-    // } = await fetchApi(this.baseUrl, 'sor/quote/v2', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     accept: 'application/json',
-    //   },
-    //   data: {
-    //     chainId: this.chain.id,
-    //     inputTokens: [
-    //       {
-    //         tokenAddress: getAddress(inputCurrency.address),
-    //         amount: amountIn.toString(),
-    //       },
-    //     ],
-    //     outputTokens: [
-    //       {
-    //         tokenAddress: getAddress(outputCurrency.address),
-    //         proportion: 1,
-    //       },
-    //     ],
-    //     gasPrice: Number(gasPrice) / 1000000000,
-    //     userAddr: userAddress,
-    //     slippageLimitPercent,
-    //     sourceBlacklist: [],
-    //     pathViz: true,
-    //     referralCode: '1939997089',
-    //   },
-    // })
-    // this.latestState = { pathId: result.pathId, amountIn }
-    // return {
-    //   amountOut: BigInt(result.outAmounts[0]),
-    //   gasLimit: BigInt(result.gasEstimate),
-    //   pathViz: result.pathViz,
-    //   aggregator: this,
-    // }
+
+    const result = await fetchApi<{
+      quotes: { buyAmount: string; gasFees: string }[]
+    }>(
+      'https://starknet.api.avnu.fi',
+      `internal/swap/quotes-with-prices?sellTokenAddress=${inputCurrency.address}&buyTokenAddress=${outputCurrency.address}&sellAmount=0x${amountIn.toString(16)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+      },
+    )
+
     return {
-      amountOut: 0n,
-      gasLimit: 0n,
+      amountOut: BigInt(result?.quotes[0]?.buyAmount ?? 0n),
+      gasLimit: BigInt(result?.quotes[0]?.gasFees ?? 0n),
       aggregator: this,
     }
   }
