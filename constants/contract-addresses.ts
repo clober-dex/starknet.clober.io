@@ -9,7 +9,7 @@ export const CONTRACT_ADDRESSES: {
 } = {
   [mainnet.network]: {
     Controller:
-      '0x06306dd0bdf85698b982dbe05904f831c79e3479ebbd7bf16cae17c9c24da5ea',
+      '0x0279bacdcc5b719f4f892ddf5063926c9f58c90d1ec3c6ebf5c47d6dac294489',
     BookManager:
       '0x04c67309350e5fd9344b9d00c5fabc8ef9133dbed348bc87620ac5f05101159d',
     BookViewer:
