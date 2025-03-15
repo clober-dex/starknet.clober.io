@@ -6,7 +6,7 @@ export const PROVIDER: {
 } = {
   [mainnet.network]: new RpcBatchProvider({
     nodeUrl:
-      'https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_7/3Um4IcT1mrq2MEOYurXvsRAzk_v3Q_4X',
+      'https://starknet.blockpi.network/v1/rpc/ae9f55e5b26decb8e3b44a18a1657f0776f60026',
     maxBatchSize: 100,
   }),
 }
