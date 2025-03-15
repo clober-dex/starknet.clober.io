@@ -18,6 +18,7 @@ const nextConfig = {
       'img.cryptorank.io',
       'dd.dexscreener.com',
       'artio-static-asset-public.s3.ap-southeast-1.amazonaws.com',
+      'imagedelivery.net',
     ],
   },
 }

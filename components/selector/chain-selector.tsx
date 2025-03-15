@@ -71,10 +71,6 @@ function ChainsDropDown({
           title={'Mainnet'}
           chains={[
             { name: 'Base', icon: 'https://assets.odos.xyz/chains/base.png' },
-            {
-              name: 'zkSync Era',
-              icon: 'https://assets.odos.xyz/chains/zksync.png',
-            },
           ]}
         />
         <div className="h-0 self-stretch stroke-[1px] stroke-gray-700">
@@ -93,8 +89,8 @@ function ChainsDropDown({
           title={'Testnet'}
           chains={[
             {
-              name: 'Mitosis Testnet',
-              icon: 'https://testnet.mitosis.org/assets/nav/logo.png',
+              name: 'Monad Testnet',
+              icon: 'https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/MON.png/public',
             },
           ]}
         />
