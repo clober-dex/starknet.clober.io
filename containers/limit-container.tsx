@@ -521,11 +521,7 @@ export const LimitContainer = () => {
         ) : (
           <></>
         )}
-        {showOrderBook && !quoteCurrency && !baseCurrency ? (
-          <div className="flex flex-col p-4 sm:p-6 bg-gray-900 rounded-lg sm:rounded-xl gap-6 w-[360px] sm:w-[480px]" />
-        ) : (
-          <></>
-        )}
+
         {showOrderBook &&
         quoteCurrency &&
         baseCurrency &&
@@ -541,7 +537,7 @@ export const LimitContainer = () => {
             className="flex flex-col p-4 sm:p-6 bg-gray-900 rounded-lg sm:rounded-xl gap-6 w-[360px] sm:w-[480px]"
           />
         ) : (
-          <></>
+          <div className="flex flex-col p-4 sm:p-6 bg-gray-900 rounded-lg sm:rounded-xl gap-6 w-[360px] sm:w-[480px]" />
         )}
         <div className="flex flex-col rounded-2xl bg-gray-900 p-6 w-[360px] sm:w-[480px] h-[391px] sm:h-[459px] md:h-[459px] lg:h-[460px]">
           <LimitForm
